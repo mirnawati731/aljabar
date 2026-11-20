@@ -1,0 +1,2046 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ALJABAR EXPLORER - Media Pembelajaran Interaktif Matematika SMP</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              blue: '#2563EB',
+              purple: '#7C3AED',
+              green: '#10B981',
+              yellow: '#F59E0B',
+              dark: '#1E293B'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'Segoe UI', 'Roboto', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-12px) rotate(3deg); }
+    }
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 15px rgba(37, 99, 235, 0.4); }
+      50% { box-shadow: 0 0 25px rgba(124, 58, 237, 0.7); }
+    }
+    .animate-float { animation: float 4s ease-in-out infinite; }
+    .animate-glow { animation: pulse-glow 3s infinite; }
+    
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #F1F5F9; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+    /* Print Styles for LKPD */
+    @media print {
+      body * { visibility: hidden; }
+      #print-area, #print-area * { visibility: visible; }
+      #print-area { position: absolute; left: 0; top: 0; width: 100%; }
+      .no-print { display: none !important; }
+    }
+
+    .algebra-tile {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .algebra-tile:hover {
+      transform: translateY(-2px) scale(1.02);
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col selection:bg-purple-200 selection:text-purple-900">
+
+  <!-- TOP HEADER / NAV BAR -->
+  <header id="main-header" class="bg-white/90 backdrop-blur-md shadow-md sticky top-0 z-40 border-b border-slate-200 hidden">
+    <div class="max-w-7xl mx-auto px-4 py-2 flex flex-wrap items-center justify-between gap-3">
+      <!-- Logo & Title -->
+      <div class="flex items-center space-x-3 cursor-pointer" onclick="showScreen('menu-screen')">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-purple-600 flex items-center justify-center text-white text-xl font-bold shadow-md">
+          <i class="fa-solid fa-shapes"></i>
+        </div>
+        <div>
+          <h1 class="font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 text-lg leading-tight">
+            ALJABAR EXPLORER
+          </h1>
+          <p class="text-xs text-slate-500 font-medium">SMP Kelas VII • Fase D</p>
+        </div>
+      </div>
+
+      <!-- Student Profile & Progress Indicator -->
+      <div class="flex items-center space-x-4">
+        <div class="hidden sm:flex flex-col items-end">
+          <span class="text-xs text-slate-400 font-medium">Siswa Explorer</span>
+          <span id="user-display-name" class="font-bold text-slate-700 text-sm">Teman Aljabar</span>
+        </div>
+        <div class="flex items-center bg-yellow-50 border border-yellow-200 px-3 py-1 rounded-full shadow-sm">
+          <i class="fa-solid fa-star text-yellow-500 text-sm mr-1.5 animate-bounce"></i>
+          <span id="user-stars" class="font-black text-yellow-700 text-sm">0</span>
+        </div>
+        <div class="w-28 sm:w-36 bg-slate-100 rounded-full h-3 overflow-hidden border border-slate-200" title="Progres Belajar">
+          <div id="overall-progress-bar" class="bg-gradient-to-r from-blue-500 to-green-400 h-full w-0 transition-all duration-500"></div>
+        </div>
+      </div>
+
+      <!-- Audio & Control Buttons -->
+      <div class="flex items-center space-x-2">
+        <!-- Audio Panel Trigger / Controls -->
+        <div class="bg-slate-100 p-1 rounded-xl flex items-center border border-slate-200">
+          <button id="btn-toggle-speech" onclick="toggleSpeech()" class="p-2 text-slate-600 hover:text-blue-600 hover:bg-white rounded-lg transition" title="Narasi Suara ON/OFF">
+            <i class="fa-solid fa-volume-high text-base"></i>
+          </button>
+          <button id="btn-toggle-sfx" onclick="toggleSFX()" class="p-2 text-slate-600 hover:text-purple-600 hover:bg-white rounded-lg transition" title="Efek Suara ON/OFF">
+            <i class="fa-solid fa-music text-base"></i>
+          </button>
+          <button onclick="stopSpeech()" class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition" title="Hentikan Suara">
+            <i class="fa-solid fa-square text-xs"></i>
+          </button>
+        </div>
+        
+        <button onclick="showScreen('menu-screen')" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-xs px-3 py-2 rounded-xl shadow transition flex items-center gap-1.5">
+          <i class="fa-solid fa-house"></i>
+          <span class="hidden md:inline">Menu Utama</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-grow flex flex-col justify-center items-center relative overflow-x-hidden p-3 sm:p-6">
+
+    <!-- ================= HALAMAN PEMBUKA (WELCOME) ================= -->
+    <section id="welcome-screen" class="w-full max-w-4xl bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden text-center p-6 sm:p-12 relative my-auto animate-glow">
+      <!-- Decorative Floating Graphics -->
+      <div class="absolute -top-10 -left-10 w-40 h-40 bg-blue-100 rounded-full blur-3xl opacity-60"></div>
+      <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-purple-100 rounded-full blur-3xl opacity-60"></div>
+
+      <!-- Mascot SVG -->
+      <div class="w-32 h-32 sm:w-40 sm:h-40 mx-auto mb-4 animate-float relative cursor-pointer" onclick="speakText('Halo! Aku Albi, maskot Aljabar Explorer. Siap menjelajah bersamaku?')">
+        <svg viewBox="0 0 200 200" class="w-full h-full drop-shadow-lg">
+          <!-- Body -->
+          <circle cx="100" cy="110" r="70" fill="url(#gradMascot)" />
+          <!-- Eyes -->
+          <circle cx="80" cy="95" r="18" fill="white" />
+          <circle cx="120" cy="95" r="18" fill="white" />
+          <circle cx="82" cy="95" r="8" fill="#1E293B" />
+          <circle cx="118" cy="95" r="8" fill="#1E293B" />
+          <circle cx="85" cy="92" r="3" fill="white" />
+          <circle cx="121" cy="92" r="3" fill="white" />
+          <!-- Glasses -->
+          <rect x="58" y="80" width="38" height="30" rx="8" fill="none" stroke="#3B82F6" stroke-width="4"/>
+          <rect x="104" y="80" width="38" height="30" rx="8" fill="none" stroke="#3B82F6" stroke-width="4"/>
+          <line x1="96" y1="95" x2="104" y2="95" stroke="#3B82F6" stroke-width="4"/>
+          <!-- Graduation Cap -->
+          <polygon points="100,25 40,55 100,70 160,55" fill="#1E293B" />
+          <rect x="75" y="50" width="50" height="15" fill="#334155" />
+          <line x1="160" y1="55" x2="165" y2="85" stroke="#F59E0B" stroke-width="3" />
+          <circle cx="165" cy="88" r="4" fill="#F59E0B" />
+          <!-- Smile -->
+          <path d="M 85 130 Q 100 145 115 130" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"/>
+          <!-- Holding Pencil -->
+          <rect x="145" y="100" width="12" height="45" rx="3" fill="#F59E0B" transform="rotate(-25 145 100)" />
+          <polygon points="145,145 157,145 151,157" fill="#78350F" transform="rotate(-25 145 100)"/>
+          
+          <defs>
+            <linearGradient id="gradMascot" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#7C3AED;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+        </svg>
+        <span class="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-yellow-400 text-slate-900 font-extrabold text-xs px-2 py-0.5 rounded-full shadow">Halo, Aku Albi!</span>
+      </div>
+
+      <!-- Main Title -->
+      <h1 class="text-3xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 mb-2 tracking-tight">
+        ALJABAR EXPLORER
+      </h1>
+      <p class="text-base sm:text-xl font-medium text-slate-600 mb-6 max-w-xl mx-auto">
+        "Petualangan Seru Menjelajahi Dunia Aljabar"
+      </p>
+
+      <!-- Student Name Input -->
+      <div class="max-w-xs mx-auto mb-6">
+        <label for="student-name-input" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nama Pengenalan Kamu:</label>
+        <input type="text" id="student-name-input" placeholder="Masukkan Nama Kamu..." class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-200 focus:border-purple-500 focus:ring-0 text-center font-bold text-slate-700 outline-none transition">
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 max-w-md mx-auto">
+        <button onclick="startApp()" class="w-full sm:w-auto flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-extrabold text-lg px-8 py-3.5 rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition flex items-center justify-center gap-2">
+          <i class="fa-solid fa-rocket"></i>
+          MULAI BELAJAR
+        </button>
+        <button onclick="openModal('guide-modal')" class="w-full sm:w-auto bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-6 py-3.5 rounded-2xl transition border border-slate-200 flex items-center justify-center gap-2">
+          <i class="fa-solid fa-circle-info text-blue-500"></i>
+          PETUNJUK
+        </button>
+        <button onclick="showScreen('developer-screen')" class="w-full sm:w-auto bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-6 py-3.5 rounded-2xl transition border border-slate-200 flex items-center justify-center gap-2">
+          <i class="fa-solid fa-user-gear text-purple-500"></i>
+          PENGEMBANG
+        </button>
+      </div>
+    </section>
+
+    <!-- ================= MENU UTAMA (DASHBOARD) ================= -->
+    <section id="menu-screen" class="w-full max-w-6xl hidden animate-fadeIn">
+      <div class="mb-6 text-center sm:text-left flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div>
+          <h2 class="text-2xl sm:text-3xl font-black text-slate-800">Pilih Zona Petualangan</h2>
+          <p class="text-slate-500 text-sm">Pilih menu di bawah ini untuk memulai petualangan matematikamu!</p>
+        </div>
+        <!-- Reset Progress Trigger -->
+        <button onclick="confirmResetProgress()" class="text-xs text-red-500 hover:text-red-700 font-semibold bg-red-50 px-3 py-1.5 rounded-lg border border-red-100 transition">
+          <i class="fa-solid fa-rotate-left mr-1"></i> Reset Progres Belajar
+        </button>
+      </div>
+
+      <!-- 7 Menu Cards Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <!-- Card 1: MATERI -->
+        <div onclick="showScreen('materi-screen')" class="group bg-white p-6 rounded-3xl border border-slate-200 hover:border-blue-500 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer relative overflow-hidden flex flex-col justify-between">
+          <div class="absolute top-0 right-0 w-24 h-24 bg-blue-500/10 rounded-bl-full group-hover:scale-110 transition"></div>
+          <div>
+            <div class="w-14 h-14 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center text-2xl font-bold mb-4 group-hover:bg-blue-600 group-hover:text-white transition">
+              <i class="fa-solid fa-book-open"></i>
+            </div>
+            <h3 class="text-xl font-extrabold text-slate-800 mb-2">1. MATERI</h3>
+            <p class="text-slate-500 text-sm leading-relaxed">Pelajari 6 topik aljabar sistematis lengkap dengan penjelasan visual, contoh, dan latihan interaktif.</p>
+          </div>
+          <div class="mt-6 flex items-center justify-between border-t border-slate-100 pt-3">
+            <span id="badge-materi-status" class="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full">0/6 Topik</span>
+            <i class="fa-solid fa-arrow-right text-slate-300 group-hover:text-blue-600 group-hover:translate-x-1 transition"></i>
+          </div>
+        </div>
+
+        <!-- Card 2: SIMULASI -->
+        <div onclick="showScreen('simulasi-screen')" class="group bg-white p-6 rounded-3xl border border-slate-200 hover:border-purple-500 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer relative overflow-hidden flex flex-col justify-between">
+          <div class="absolute top-0 right-0 w-24 h-24 bg-purple-500/10 rounded-bl-full group-hover:scale-110 transition"></div>
+          <div>
+            <div class="w-14 h-14 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center text-2xl font-bold mb-4 group-hover:bg-purple-600 group-hover:text-white transition">
+              <i class="fa-solid fa-sliders"></i>
+            </div>
+            <h3 class="text-xl font-extrabold text-slate-800 mb-2">2. SIMULASI</h3>
+            <p class="text-slate-500 text-sm leading-relaxed">Uji variabel secara langsung dengan slider interaktif, grouping suku sejenis, dan visualisasi blok warna.</p>
+          </div>
+          <div class="mt-6 flex items-center justify-between border-t border-slate-100 pt-3">
+            <span class="text-xs font-bold text-purple-600 bg-purple-50 px-2.5 py-1 rounded-full">3 Simulasi Visual</span>
+            <i class="fa-solid fa-arrow-right text-slate-300 group-hover:text-purple-600 group-hover:translate-x-1 transition"></i>
+          </div>
+        </div>
+
+        <!-- Card 3: PRAKTIKUM -->
+        <div onclick="showScreen('praktikum-screen')" class="group bg-white p-6 rounded-3xl border border-slate-200 hover:border-emerald-500 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer relative overflow-hidden flex flex-col justify-between">
+          <div class="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-bl-full group-hover:scale-110 transition"></div>
+          <div>
+            <div class="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-2xl font-bold mb-4 group-hover:bg-emerald-600 group-hover:text-white transition">
+              <i class="fa-solid fa-flask"></i>
+            </div>
+            <h3 class="text-xl font-extrabold text-slate-800 mb-2">3. PRAKTIKUM</h3>
+            <p class="text-slate-500 text-sm leading-relaxed">Prapraktikum Toko Aljabar, Penyusun Bentuk Aljabar, dan Model Area Luas Persegi Panjang.</p>
+          </div>
+          <div class="mt-6 flex items-center justify-between border-t border-slate-100 pt-3">
+            <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">3 Praktikum Berbasis Masalah</span>
+            <i class="fa-solid fa-arrow-right text-slate-300 group-hover:text-emerald-600 group-hover:translate-x-1 transition"></i>
+          </div>
+        </div>
+
+        <!-- Card 4: GAME -->
+        <div onclick="showScreen('game-screen')" class="group bg-white p-6 rounded-3xl border border-slate-200 hover:border-amber-500 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer relative overflow-hidden flex flex-col justify-between">
+          <div class="absolute top-0 right-0 w-24 h-24 bg-amber-500/10 rounded-bl-full group-hover:scale-110 transition"></div>
+          <div>
+            <div class="w-14 h-14 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center text-2xl font-bold mb-4 group-hover:bg-amber-600 group-hover:text-white transition">
+              <i class="fa-solid fa-gamepad"></i>
+            </div>
+            <h3 class="text-xl font-extrabold text-slate-800 mb-2">4. GAME EDUKASI</h3>
+            <p class="text-slate-500 text-sm leading-relaxed">4 Minigame seru: Tebak Siapa Aku, Pasangkan Kartu, Kejar Jawaban, dan Petualangan 10 Level!</p>
+          </div>
+          <div class="mt-6 flex items-center justify-between border-t border-slate-100 pt-3">
+            <span class="text-xs font-bold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full">4 Permainan</span>
+            <i class="fa-solid fa-arrow-right text-slate-300 group-hover:text-amber-600 group-hover:translate-x-1 transition"></i>
+          </div>
+        </div>
+
+        <!-- Card 5: LKPD -->
+        <div onclick="showScreen('lkpd-screen')" class="group bg-white p-6 rounded-3xl border border-slate-200 hover:border-indigo-500 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer relative overflow-hidden flex flex-col justify-between">
+          <div class="absolute top-0 right-0 w-24 h-24 bg-indigo-500/10 rounded-bl-full group-hover:scale-110 transition"></div>
+          <div>
+            <div class="w-14 h-14 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-2xl font-bold mb-4 group-hover:bg-indigo-600 group-hover:text-white transition">
+              <i class="fa-solid fa-file-pen"></i>
+            </div>
+            <h3 class="text-xl font-extrabold text-slate-800 mb-2">5. LKPD DIGITAL</h3>
+            <p class="text-slate-500 text-sm leading-relaxed">Kerjakan Lembar Kerja Peserta Didik digital, simpan jawabanmu, dan cetak langsung!</p>
+          </div>
+          <div class="mt-6 flex items-center justify-between border-t border-slate-100 pt-3">
+            <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full">3 LKPD Terstruktur</span>
+            <i class="fa-solid fa-arrow-right text-slate-300 group-hover:text-indigo-600 group-hover:translate-x-1 transition"></i>
+          </div>
+        </div>
+
+        <!-- Card 6: EVALUASI -->
+        <div onclick="showScreen('evaluasi-screen')" class="group bg-white p-6 rounded-3xl border border-slate-200 hover:border-rose-500 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer relative overflow-hidden flex flex-col justify-between">
+          <div class="absolute top-0 right-0 w-24 h-24 bg-rose-500/10 rounded-bl-full group-hover:scale-110 transition"></div>
+          <div>
+            <div class="w-14 h-14 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center text-2xl font-bold mb-4 group-hover:bg-rose-600 group-hover:text-white transition">
+              <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <h3 class="text-xl font-extrabold text-slate-800 mb-2">6. EVALUASI</h3>
+            <p class="text-slate-500 text-sm leading-relaxed">Uji pemahamanmu dengan 20 soal pilihan ganda berbobot lengkap dengan skor dan pembahasan.</p>
+          </div>
+          <div class="mt-6 flex items-center justify-between border-t border-slate-100 pt-3">
+            <span id="badge-eval-score" class="text-xs font-bold text-rose-600 bg-rose-50 px-2.5 py-1 rounded-full">20 Soal Pilihan Ganda</span>
+            <i class="fa-solid fa-arrow-right text-slate-300 group-hover:text-rose-600 group-hover:translate-x-1 transition"></i>
+          </div>
+        </div>
+
+        <!-- Card 7: PENGEMBANG (Full width on large screens) -->
+        <div onclick="showScreen('developer-screen')" class="group bg-gradient-to-r from-slate-900 to-indigo-950 p-6 rounded-3xl text-white shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer sm:col-span-2 lg:col-span-3 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div class="flex items-center space-x-4">
+            <div class="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center text-2xl text-purple-400">
+              <i class="fa-solid fa-id-card"></i>
+            </div>
+            <div>
+              <span class="text-xs text-purple-300 font-bold uppercase tracking-wider">Identitas Pengembang</span>
+              <h3 class="text-xl font-extrabold">Ari Suryadi, S.Pd.</h3>
+              <p class="text-xs text-slate-300">Guru Matematika • SMP Negeri Satu Atap 3 Kalianda</p>
+            </div>
+          </div>
+          <span class="text-xs font-bold bg-white/10 hover:bg-white/20 px-4 py-2 rounded-xl transition border border-white/10 flex items-center gap-2">
+            Lihat Profil & Custom Asset <i class="fa-solid fa-arrow-right"></i>
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= MENU 1: MATERI ================= -->
+    <section id="materi-screen" class="w-full max-w-5xl hidden">
+      <!-- Nav Header Materi -->
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-white p-4 rounded-2xl border border-slate-200 shadow-sm mb-6 gap-3">
+        <div class="flex items-center space-x-3">
+          <button onclick="showScreen('menu-screen')" class="p-2 text-slate-500 hover:text-blue-600 rounded-xl hover:bg-slate-100 transition">
+            <i class="fa-solid fa-arrow-left text-lg"></i>
+          </button>
+          <div>
+            <h2 class="font-extrabold text-slate-800 text-xl">Zona Materi Pembelajaran</h2>
+            <p class="text-xs text-slate-500">Pilih topik materi yang ingin dipelajari di bawah ini</p>
+          </div>
+        </div>
+
+        <!-- Topic Tabs Selector -->
+        <div id="materi-tabs" class="flex flex-wrap gap-1.5 w-full sm:w-auto">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Active Topic Container Card -->
+      <div id="materi-content-card" class="bg-white rounded-3xl border border-slate-200 shadow-lg p-6 sm:p-10 relative">
+        <!-- Content will be injected dynamically -->
+      </div>
+    </section>
+
+    <!-- ================= MENU 2: SIMULASI ================= -->
+    <section id="simulasi-screen" class="w-full max-w-5xl hidden">
+      <div class="flex items-center justify-between bg-white p-4 rounded-2xl border border-slate-200 shadow-sm mb-6">
+        <div class="flex items-center space-x-3">
+          <button onclick="showScreen('menu-screen')" class="p-2 text-slate-500 hover:text-purple-600 rounded-xl hover:bg-slate-100 transition">
+            <i class="fa-solid fa-arrow-left text-lg"></i>
+          </button>
+          <div>
+            <h2 class="font-extrabold text-slate-800 text-xl">Laboratorium Simulasi Aljabar</h2>
+            <p class="text-xs text-slate-500">Eksplorasi konsep matematika secara interaktif</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Simulasi Tabs -->
+      <div class="flex border-b border-slate-200 mb-6 bg-white rounded-2xl p-1.5 shadow-sm">
+        <button onclick="switchSimulasi(1)" id="sim-tab-1" class="flex-1 py-2.5 text-sm font-bold rounded-xl transition text-purple-600 bg-purple-50 shadow-sm">
+          Simulasi 1: Mengenal Variabel
+        </button>
+        <button onclick="switchSimulasi(2)" id="sim-tab-2" class="flex-1 py-2.5 text-sm font-bold rounded-xl transition text-slate-500 hover:text-purple-600">
+          Simulasi 2: Suku Sejenis
+        </button>
+        <button onclick="switchSimulasi(3)" id="sim-tab-3" class="flex-1 py-2.5 text-sm font-bold rounded-xl transition text-slate-500 hover:text-purple-600">
+          Simulasi 3: Operasi Aljabar
+        </button>
+      </div>
+
+      <!-- SIMULASI 1: Slider Variabel -->
+      <div id="sim-content-1" class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-md">
+        <div class="max-w-2xl mx-auto text-center">
+          <span class="bg-purple-100 text-purple-700 font-extrabold text-xs px-3 py-1 rounded-full uppercase tracking-wider">Simulasi Interaktif 1</span>
+          <h3 class="text-2xl font-black text-slate-800 mt-2 mb-4">Pengaruh Nilai Variabel x terhadap Bentuk 3x + 5</h3>
+          <p class="text-slate-600 text-sm mb-6">Geser slider di bawah ini untuk mengubah nilai variabel <span class="font-bold text-purple-600">x</span> dan amati perubahan hasilnya!</p>
+
+          <!-- Slider Control -->
+          <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200 mb-6">
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-sm font-bold text-slate-600">Pilih Nilai x:</span>
+              <span id="sim1-x-val" class="text-2xl font-black text-purple-600 bg-purple-100 px-4 py-1 rounded-xl">x = 2</span>
+            </div>
+            <input type="range" id="sim1-slider" min="-5" max="10" value="2" step="1" oninput="updateSim1()" class="w-full h-3 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-purple-600">
+            <div class="flex justify-between text-xs text-slate-400 mt-1 font-semibold">
+              <span>-5</span>
+              <span>0</span>
+              <span>5</span>
+              <span>10</span>
+            </div>
+          </div>
+
+          <!-- Step Calculation Visualizer -->
+          <div class="bg-gradient-to-r from-purple-900 to-indigo-900 text-white p-6 rounded-2xl shadow-lg mb-6">
+            <div class="text-xs text-purple-300 font-bold uppercase mb-2">Proses Perhitungan Otomatis:</div>
+            <div class="text-2xl sm:text-3xl font-mono font-bold tracking-wide">
+              3(<span id="sim1-calc-x" class="text-yellow-400">2</span>) + 5 = <span id="sim1-calc-step" class="text-purple-300">6 + 5</span> = <span id="sim1-calc-result" class="text-emerald-400 font-black">11</span>
+            </div>
+          </div>
+
+          <!-- Visual Boxes / Balance Representation -->
+          <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+            <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Visualisasi Kantong Variabel & Konstanta:</h4>
+            <div class="flex flex-wrap items-center justify-center gap-4">
+              <!-- 3 Boxes for 3x -->
+              <div class="flex items-center gap-1.5 bg-purple-50 p-3 rounded-xl border border-purple-200">
+                <div id="sim1-boxes-container" class="flex gap-2">
+                  <!-- Injected via JS -->
+                </div>
+                <span class="text-xs font-bold text-purple-700 ml-2">(3 Kotak x)</span>
+              </div>
+              <span class="text-2xl font-bold text-slate-400">+</span>
+              <!-- 5 Constant Units -->
+              <div class="flex items-center gap-1.5 bg-amber-50 p-3 rounded-xl border border-amber-200">
+                <div class="flex gap-1">
+                  <span class="w-6 h-6 bg-amber-400 text-white rounded-lg flex items-center justify-center text-xs font-bold">1</span>
+                  <span class="w-6 h-6 bg-amber-400 text-white rounded-lg flex items-center justify-center text-xs font-bold">1</span>
+                  <span class="w-6 h-6 bg-amber-400 text-white rounded-lg flex items-center justify-center text-xs font-bold">1</span>
+                  <span class="w-6 h-6 bg-amber-400 text-white rounded-lg flex items-center justify-center text-xs font-bold">1</span>
+                  <span class="w-6 h-6 bg-amber-400 text-white rounded-lg flex items-center justify-center text-xs font-bold">1</span>
+                </div>
+                <span class="text-xs font-bold text-amber-700 ml-2">(Konstanta 5)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SIMULASI 2: Drag & Drop / Click Grouping Suku Sejenis -->
+      <div id="sim-content-2" class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-md hidden">
+        <div class="max-w-3xl mx-auto text-center">
+          <span class="bg-blue-100 text-blue-700 font-extrabold text-xs px-3 py-1 rounded-full uppercase tracking-wider">Simulasi Interaktif 2</span>
+          <h3 class="text-2xl font-black text-slate-800 mt-2 mb-2">Pengelompokan Suku Sejenis</h3>
+          <p class="text-slate-600 text-sm mb-6">Klik kartu suku di bawah ini untuk memasukkannya ke dalam keranjang suku sejenis yang tepat!</p>
+
+          <!-- Cards Pool -->
+          <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 mb-6">
+            <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Kartu Suku Acak:</h4>
+            <div id="sim2-cards-pool" class="flex flex-wrap justify-center gap-3 min-h-[60px] items-center">
+              <!-- Injected via JS -->
+            </div>
+          </div>
+
+          <!-- Baskets Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+            <!-- Basket X -->
+            <div onclick="placeTileInBasket('x')" class="bg-blue-50/70 border-2 border-dashed border-blue-300 hover:border-blue-500 rounded-2xl p-5 text-center min-h-[160px] transition flex flex-col justify-between cursor-pointer">
+              <div class="flex justify-between items-center mb-2">
+                <span class="font-bold text-blue-800 text-sm"><i class="fa-solid fa-box mr-1"></i> Keranjang Variabel x</span>
+                <span class="text-xs font-extrabold bg-blue-200 text-blue-800 px-2 py-0.5 rounded-full">Kategori X</span>
+              </div>
+              <div id="sim2-basket-x" class="flex flex-wrap gap-2 justify-center my-auto">
+                <!-- Drop area x -->
+              </div>
+              <span class="text-xs text-blue-400 italic">Klik kartu di atas lalu klik keranjang ini</span>
+            </div>
+
+            <!-- Basket Y -->
+            <div onclick="placeTileInBasket('y')" class="bg-purple-50/70 border-2 border-dashed border-purple-300 hover:border-purple-500 rounded-2xl p-5 text-center min-h-[160px] transition flex flex-col justify-between cursor-pointer">
+              <div class="flex justify-between items-center mb-2">
+                <span class="font-bold text-purple-800 text-sm"><i class="fa-solid fa-box mr-1"></i> Keranjang Variabel y</span>
+                <span class="text-xs font-extrabold bg-purple-200 text-purple-800 px-2 py-0.5 rounded-full">Kategori Y</span>
+              </div>
+              <div id="sim2-basket-y" class="flex flex-wrap gap-2 justify-center my-auto">
+                <!-- Drop area y -->
+              </div>
+              <span class="text-xs text-purple-400 italic">Klik kartu di atas lalu klik keranjang ini</span>
+            </div>
+          </div>
+
+          <button onclick="resetSim2()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-5 py-2 rounded-xl text-sm transition">
+            <i class="fa-solid fa-rotate mr-1"></i> Acak Ulang Kartu
+          </button>
+        </div>
+      </div>
+
+      <!-- SIMULASI 3: Operasi Aljabar dengan Ubin Warna -->
+      <div id="sim-content-3" class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-md hidden">
+        <div class="max-w-3xl mx-auto text-center">
+          <span class="bg-emerald-100 text-emerald-700 font-extrabold text-xs px-3 py-1 rounded-full uppercase tracking-wider">Simulasi Interaktif 3</span>
+          <h3 class="text-2xl font-black text-slate-800 mt-2 mb-2">Visualisasi Penjumlahan Ubin Aljabar (Algebra Tiles)</h3>
+          <p class="text-slate-600 text-sm mb-6">Lihat bagaimana ubin dengan bentuk dan variabel yang sama digabungkan!</p>
+
+          <!-- Select Operation -->
+          <div class="flex justify-center gap-2 mb-6">
+            <button onclick="updateSim3('2x+3x')" id="sim3-btn-1" class="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white transition">2x + 3x</button>
+            <button onclick="updateSim3('4x-2x')" id="sim3-btn-2" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">4x - 2x</button>
+            <button onclick="updateSim3('3y+2y')" id="sim3-btn-3" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">3y + 2y</button>
+          </div>
+
+          <!-- Display Tile Animation Board -->
+          <div id="sim3-display-board" class="bg-slate-900 text-white p-6 rounded-2xl shadow-xl min-h-[220px] flex flex-col items-center justify-center">
+            <!-- Dynamic UI -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= MENU 3: PRAKTIKUM ================= -->
+    <section id="praktikum-screen" class="w-full max-w-5xl hidden">
+      <div class="flex items-center justify-between bg-white p-4 rounded-2xl border border-slate-200 shadow-sm mb-6">
+        <div class="flex items-center space-x-3">
+          <button onclick="showScreen('menu-screen')" class="p-2 text-slate-500 hover:text-emerald-600 rounded-xl hover:bg-slate-100 transition">
+            <i class="fa-solid fa-arrow-left text-lg"></i>
+          </button>
+          <div>
+            <h2 class="font-extrabold text-slate-800 text-xl">Ruang Praktikum Aljabar</h2>
+            <p class="text-xs text-slate-500">Pecahkan persoalan aljabar dunia nyata secara praktis</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs Praktikum -->
+      <div class="flex border-b border-slate-200 mb-6 bg-white rounded-2xl p-1.5 shadow-sm">
+        <button onclick="switchPraktikum(1)" id="prak-tab-1" class="flex-1 py-2.5 text-sm font-bold rounded-xl transition text-emerald-600 bg-emerald-50 shadow-sm">
+          Praktikum 1: Toko Aljabar
+        </button>
+        <button onclick="switchPraktikum(2)" id="prak-tab-2" class="flex-1 py-2.5 text-sm font-bold rounded-xl transition text-slate-500 hover:text-emerald-600">
+          Praktikum 2: Membangun Bentuk Aljabar
+        </button>
+        <button onclick="switchPraktikum(3)" id="prak-tab-3" class="flex-1 py-2.5 text-sm font-bold rounded-xl transition text-slate-500 hover:text-emerald-600">
+          Praktikum 3: Luas Model Area
+        </button>
+      </div>
+
+      <!-- PRAKTIKUM 1: TOKO ALJABAR -->
+      <div id="prak-content-1" class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-md">
+        <div class="max-w-3xl mx-auto">
+          <div class="text-center mb-6">
+            <span class="bg-emerald-100 text-emerald-700 font-extrabold text-xs px-3 py-1 rounded-full uppercase tracking-wider">Praktikum 1</span>
+            <h3 class="text-2xl font-black text-slate-800 mt-2">Kantin Sekolah & Toko Alat Tulis</h3>
+            <p class="text-slate-600 text-sm">Dimana <span class="font-bold text-blue-600">x = harga 1 Buku Tulis</span> dan <span class="font-bold text-amber-600">y = harga 1 Pensil</span>.</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <!-- Store Picker -->
+            <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+              <h4 class="font-bold text-slate-700 mb-4 flex items-center gap-2"><i class="fa-solid fa-cart-shopping text-emerald-600"></i> Pilih Jumlah Barang:</h4>
+              
+              <!-- Item Buku -->
+              <div class="flex justify-between items-center mb-4 bg-white p-3 rounded-xl border border-slate-200">
+                <div class="flex items-center space-x-3">
+                  <div class="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center font-bold">📘</div>
+                  <div>
+                    <span class="font-bold text-sm block">Buku Tulis (x)</span>
+                    <span class="text-xs text-slate-400">Harga Satuan = Rp4.000</span>
+                  </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <button onclick="changeQty('x', -1)" class="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 font-bold hover:bg-slate-200">-</button>
+                  <span id="qty-x" class="font-extrabold text-slate-800 w-6 text-center">3</span>
+                  <button onclick="changeQty('x', 1)" class="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 font-bold hover:bg-slate-200">+</button>
+                </div>
+              </div>
+
+              <!-- Item Pensil -->
+              <div class="flex justify-between items-center bg-white p-3 rounded-xl border border-slate-200">
+                <div class="flex items-center space-x-3">
+                  <div class="w-10 h-10 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center font-bold">✏️</div>
+                  <div>
+                    <span class="font-bold text-sm block">Pensil (y)</span>
+                    <span class="text-xs text-slate-400">Harga Satuan = Rp2.000</span>
+                  </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <button onclick="changeQty('y', -1)" class="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 font-bold hover:bg-slate-200">-</button>
+                  <span id="qty-y" class="font-extrabold text-slate-800 w-6 text-center">2</span>
+                  <button onclick="changeQty('y', 1)" class="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 font-bold hover:bg-slate-200">+</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Total Calculation Display -->
+            <div class="bg-emerald-900 text-white p-6 rounded-2xl flex flex-col justify-between shadow-lg">
+              <div>
+                <span class="text-xs text-emerald-300 font-bold uppercase tracking-wider">Bentuk Aljabar Belanjaan:</span>
+                <div id="prak1-expression" class="text-3xl font-black text-amber-300 my-3">3x + 2y</div>
+                <p class="text-xs text-slate-300 leading-relaxed">Persamaan ini menyatakan total belanjaanmu dalam suku variabel sebelum nilai rupiah dimasukkan.</p>
+              </div>
+
+              <div class="border-t border-emerald-700/80 pt-4 mt-4">
+                <span class="text-xs text-emerald-300 font-bold uppercase">Substitusi Nilai Ruang Nyata:</span>
+                <div id="prak1-sub-detail" class="text-sm font-mono text-emerald-200 my-1">3(4.000) + 2(2.000) = 12.000 + 4.000</div>
+                <div class="flex justify-between items-baseline mt-2">
+                  <span class="text-xs font-bold text-slate-300">Total Bayar:</span>
+                  <span id="prak1-total" class="text-2xl font-black text-white">Rp16.000</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRAKTIKUM 2: MEMBANGUN BENTUK ALJABAR -->
+      <div id="prak-content-2" class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-md hidden">
+        <div class="max-w-3xl mx-auto text-center">
+          <span class="bg-emerald-100 text-emerald-700 font-extrabold text-xs px-3 py-1 rounded-full uppercase tracking-wider">Praktikum 2</span>
+          <h3 class="text-2xl font-black text-slate-800 mt-2 mb-2">Misi Menyusun Bentuk Aljabar</h3>
+          <p id="prak2-mission-text" class="text-slate-700 font-semibold text-base mb-6 bg-emerald-50 p-4 rounded-2xl border border-emerald-200">
+            Misi 1: Susunlah bentuk aljabar yang memiliki koefisien x sebesar 5 dan konstanta -3!
+          </p>
+
+          <!-- Target Slot Workspace -->
+          <div class="bg-slate-900 text-white p-6 rounded-2xl mb-6 shadow-inner min-h-[100px] flex items-center justify-center gap-3">
+            <span class="text-xs text-slate-400 font-bold mr-2">Bentuk Kamu:</span>
+            <div id="prak2-workspace" class="flex items-center gap-2 text-2xl font-black text-amber-300">
+              <!-- Built tiles -->
+            </div>
+          </div>
+
+          <!-- Component Selector Buttons -->
+          <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 mb-6">
+            <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Komponen Aljabar:</h4>
+            <div class="flex flex-wrap justify-center gap-2">
+              <button onclick="addPrak2Tile('5')" class="px-3.5 py-2 bg-white border border-slate-300 rounded-xl font-bold hover:bg-blue-50 hover:border-blue-400 transition">5</button>
+              <button onclick="addPrak2Tile('x')" class="px-3.5 py-2 bg-white border border-slate-300 rounded-xl font-bold text-blue-600 hover:bg-blue-50 transition">x</button>
+              <button onclick="addPrak2Tile('+')" class="px-3.5 py-2 bg-white border border-slate-300 rounded-xl font-bold text-emerald-600 hover:bg-emerald-50 transition">+</button>
+              <button onclick="addPrak2Tile('-')" class="px-3.5 py-2 bg-white border border-slate-300 rounded-xl font-bold text-rose-600 hover:bg-rose-50 transition">-</button>
+              <button onclick="addPrak2Tile('3')" class="px-3.5 py-2 bg-white border border-slate-300 rounded-xl font-bold hover:bg-blue-50 transition">3</button>
+              <button onclick="addPrak2Tile('4')" class="px-3.5 py-2 bg-white border border-slate-300 rounded-xl font-bold hover:bg-blue-50 transition">4</button>
+              <button onclick="addPrak2Tile('y')" class="px-3.5 py-2 bg-white border border-slate-300 rounded-xl font-bold text-purple-600 hover:bg-purple-50 transition">y</button>
+            </div>
+          </div>
+
+          <div class="flex justify-center gap-3">
+            <button onclick="clearPrak2Workspace()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-5 py-2.5 rounded-xl text-sm transition">
+              <i class="fa-solid fa-trash mr-1"></i> Hapus
+            </button>
+            <button onclick="checkPrak2Answer()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold px-6 py-2.5 rounded-xl text-sm shadow transition">
+              <i class="fa-solid fa-circle-check mr-1"></i> Periksa Jawaban
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRAKTIKUM 3: LUAS PERSEGI PANJANG MODEL AREA -->
+      <div id="prak-content-3" class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-md hidden">
+        <div class="max-w-3xl mx-auto text-center">
+          <span class="bg-emerald-100 text-emerald-700 font-extrabold text-xs px-3 py-1 rounded-full uppercase tracking-wider">Praktikum 3</span>
+          <h3 class="text-2xl font-black text-slate-800 mt-2 mb-2">Model Area Perkalian Aljabar</h3>
+          <p class="text-slate-600 text-sm mb-6">Panjang = <span class="font-bold text-blue-600">x + 3</span> dan Lebar = <span class="font-bold text-purple-600">x + 2</span>. Menentukan Luas: <span class="font-bold">L = (x + 3)(x + 2)</span></p>
+
+          <!-- 2x2 Area Grid Diagram -->
+          <div class="max-w-md mx-auto bg-slate-100 p-4 rounded-2xl border border-slate-300 mb-6">
+            <div class="grid grid-cols-3 gap-2 text-center font-bold text-sm">
+              <!-- Row header empty -->
+              <div class="p-2"></div>
+              <div class="bg-blue-100 text-blue-800 p-2 rounded-lg">x</div>
+              <div class="bg-blue-100 text-blue-800 p-2 rounded-lg">+3</div>
+
+              <!-- Row x -->
+              <div class="bg-purple-100 text-purple-800 p-2 rounded-lg flex items-center justify-center">x</div>
+              <div class="bg-emerald-500 text-white p-6 rounded-xl flex items-center justify-center text-xl font-black shadow">x²</div>
+              <div class="bg-sky-400 text-white p-6 rounded-xl flex items-center justify-center text-lg font-bold shadow">3x</div>
+
+              <!-- Row +2 -->
+              <div class="bg-purple-100 text-purple-800 p-2 rounded-lg flex items-center justify-center">+2</div>
+              <div class="bg-indigo-400 text-white p-6 rounded-xl flex items-center justify-center text-lg font-bold shadow">2x</div>
+              <div class="bg-amber-400 text-white p-6 rounded-xl flex items-center justify-center text-lg font-bold shadow">6</div>
+            </div>
+          </div>
+
+          <!-- Expansion Step Breakdown -->
+          <div class="bg-slate-900 text-white p-6 rounded-2xl text-left font-mono text-sm space-y-2 shadow-lg">
+            <div class="text-xs text-slate-400 font-sans font-bold uppercase mb-1">Langkah Pengembangan Perkalian:</div>
+            <div>L = (x + 3)(x + 2)</div>
+            <div class="text-amber-300">L = x · x + x · 2 + 3 · x + 3 · 2</div>
+            <div class="text-blue-300">L = x² + 2x + 3x + 6</div>
+            <div class="text-emerald-400 font-bold text-base pt-2 border-t border-slate-800">L = x² + 5x + 6</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= MENU 4: GAME ================= -->
+    <section id="game-screen" class="w-full max-w-5xl hidden">
+      <div class="flex items-center justify-between bg-white p-4 rounded-2xl border border-slate-200 shadow-sm mb-6">
+        <div class="flex items-center space-x-3">
+          <button onclick="showScreen('menu-screen')" class="p-2 text-slate-500 hover:text-amber-600 rounded-xl hover:bg-slate-100 transition">
+            <i class="fa-solid fa-arrow-left text-lg"></i>
+          </button>
+          <div>
+            <h2 class="font-extrabold text-slate-800 text-xl">Arena Game Edukasi Aljabar</h2>
+            <p class="text-xs text-slate-500">Bermain sambil mengasah kecerdasan aljabar</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Minigame Selection Grid -->
+      <div id="game-selection" class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <!-- Game 1 -->
+        <div onclick="startMinigame(1)" class="bg-white p-6 rounded-3xl border border-slate-200 hover:border-amber-400 shadow-sm hover:shadow-lg transition cursor-pointer flex flex-col justify-between">
+          <div>
+            <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center text-2xl font-bold mb-3">
+              <i class="fa-solid fa-circle-question"></i>
+            </div>
+            <h3 class="font-extrabold text-slate-800 text-lg mb-1">Game 1: Tebak Siapa Aku</h3>
+            <p class="text-xs text-slate-500">Identifikasi variabel, koefisien, dan konstanta dengan cepat dan tepat!</p>
+          </div>
+          <button class="mt-4 w-full py-2 bg-amber-500 text-white font-bold rounded-xl text-xs hover:bg-amber-600 transition">Mainkan Game 1</button>
+        </div>
+
+        <!-- Game 2 -->
+        <div onclick="startMinigame(2)" class="bg-white p-6 rounded-3xl border border-slate-200 hover:border-blue-400 shadow-sm hover:shadow-lg transition cursor-pointer flex flex-col justify-between">
+          <div>
+            <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center text-2xl font-bold mb-3">
+              <i class="fa-solid fa-clone"></i>
+            </div>
+            <h3 class="font-extrabold text-slate-800 text-lg mb-1">Game 2: Pasangkan Kartu</h3>
+            <p class="text-xs text-slate-500">Cocokkan kartu suku sejenis atau bentuk hasil penyederhanaannya!</p>
+          </div>
+          <button class="mt-4 w-full py-2 bg-blue-600 text-white font-bold rounded-xl text-xs hover:bg-blue-700 transition">Mainkan Game 2</button>
+        </div>
+
+        <!-- Game 3 -->
+        <div onclick="startMinigame(3)" class="bg-white p-6 rounded-3xl border border-slate-200 hover:border-rose-400 shadow-sm hover:shadow-lg transition cursor-pointer flex flex-col justify-between">
+          <div>
+            <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center text-2xl font-bold mb-3">
+              <i class="fa-solid fa-stopwatch"></i>
+            </div>
+            <h3 class="font-extrabold text-slate-800 text-lg mb-1">Game 3: Kejar Jawaban (Speed Rush)</h3>
+            <p class="text-xs text-slate-500">Jawab sebanyak mungkin soal aljabar sebelum waktu 60 detik habis!</p>
+          </div>
+          <button class="mt-4 w-full py-2 bg-rose-600 text-white font-bold rounded-xl text-xs hover:bg-rose-700 transition">Mainkan Game 3</button>
+        </div>
+
+        <!-- Game 4 -->
+        <div onclick="startMinigame(4)" class="bg-white p-6 rounded-3xl border border-slate-200 hover:border-purple-400 shadow-sm hover:shadow-lg transition cursor-pointer flex flex-col justify-between">
+          <div>
+            <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center text-2xl font-bold mb-3">
+              <i class="fa-solid fa-map-location-dot"></i>
+            </div>
+            <h3 class="font-extrabold text-slate-800 text-lg mb-1">Game 4: Petualangan 10 Level</h3>
+            <p class="text-xs text-slate-500">Selesaikan 10 tantangan level bertahap untuk membuka kunci bintang!</p>
+          </div>
+          <button class="mt-4 w-full py-2 bg-purple-600 text-white font-bold rounded-xl text-xs hover:bg-purple-700 transition">Mainkan Game 4</button>
+        </div>
+      </div>
+
+      <!-- Active Game Play Area Container -->
+      <div id="game-play-area" class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xl hidden relative">
+        <button onclick="backToGameSelection()" class="mb-4 text-xs font-bold text-slate-500 hover:text-slate-800 flex items-center gap-1">
+          <i class="fa-solid fa-arrow-left"></i> Kembali ke Arena Game
+        </button>
+        <div id="game-active-container">
+          <!-- Minigame content rendered dynamically -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= MENU 5: LKPD DIGITAL ================= -->
+    <section id="lkpd-screen" class="w-full max-w-5xl hidden">
+      <div class="flex items-center justify-between bg-white p-4 rounded-2xl border border-slate-200 shadow-sm mb-6">
+        <div class="flex items-center space-x-3">
+          <button onclick="showScreen('menu-screen')" class="p-2 text-slate-500 hover:text-indigo-600 rounded-xl hover:bg-slate-100 transition">
+            <i class="fa-solid fa-arrow-left text-lg"></i>
+          </button>
+          <div>
+            <h2 class="font-extrabold text-slate-800 text-xl">LKPD Digital (Lembar Kerja Peserta Didik)</h2>
+            <p class="text-xs text-slate-500">Isi lembar kerja terstruktur, simpan progres, dan cetak</p>
+          </div>
+        </div>
+
+        <div class="flex space-x-2">
+          <button onclick="saveLKPD()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5 shadow">
+            <i class="fa-solid fa-floppy-disk"></i> Simpan Jawaban
+          </button>
+          <button onclick="printLKPD()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5 shadow">
+            <i class="fa-solid fa-print"></i> Cetak LKPD
+          </button>
+        </div>
+      </div>
+
+      <!-- LKPD Tabs -->
+      <div class="flex border-b border-slate-200 mb-6 bg-white rounded-2xl p-1.5 shadow-sm">
+        <button onclick="switchLKPD(1)" id="lkpd-tab-1" class="flex-1 py-2.5 text-xs sm:text-sm font-bold rounded-xl transition text-indigo-600 bg-indigo-50 shadow-sm">
+          LKPD 1: Mengenal Aljabar
+        </button>
+        <button onclick="switchLKPD(2)" id="lkpd-tab-2" class="flex-1 py-2.5 text-xs sm:text-sm font-bold rounded-xl transition text-slate-500 hover:text-indigo-600">
+          LKPD 2: Operasi Aljabar
+        </button>
+        <button onclick="switchLKPD(3)" id="lkpd-tab-3" class="flex-1 py-2.5 text-xs sm:text-sm font-bold rounded-xl transition text-slate-500 hover:text-indigo-600">
+          LKPD 3: Aljabar Sehari-hari
+        </button>
+      </div>
+
+      <!-- Print Wrapper Container -->
+      <div id="print-area" class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-10 shadow-lg">
+        <!-- Identity Header Box -->
+        <div class="border-b-2 border-indigo-600 pb-4 mb-6">
+          <div class="flex justify-between items-center mb-4">
+            <div>
+              <h1 class="text-xl font-black text-indigo-950 uppercase tracking-tight">LEMBAR KERJA PESERTA DIDIK (LKPD) DIGITAL</h1>
+              <p class="text-xs text-slate-500 font-semibold">SMP Negeri Satu Atap 3 Kalianda • Matematika Kelas VII Fase D</p>
+            </div>
+            <div class="text-right text-xs text-slate-400">
+              Materi: Aljabar
+            </div>
+          </div>
+
+          <!-- Student Information Input Fields -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <div>
+              <label class="block text-xs font-bold text-slate-500 mb-1">Nama Siswa:</label>
+              <input type="text" id="lkpd-name" placeholder="Ketik Nama Lengkap..." class="w-full bg-white px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-bold text-slate-700 outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-500 mb-1">Kelas:</label>
+              <input type="text" id="lkpd-class" value="VII (Tujuh)" class="w-full bg-white px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-bold text-slate-700 outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-500 mb-1">Nama Kelompok (Opsional):</label>
+              <input type="text" id="lkpd-group" placeholder="Nama Kelompok..." class="w-full bg-white px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-bold text-slate-700 outline-none">
+            </div>
+          </div>
+        </div>
+
+        <!-- Active LKPD Content Body -->
+        <div id="lkpd-body-content" class="space-y-6">
+          <!-- Dynamic LKPD questions and input textareas -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= MENU 6: EVALUASI ================= -->
+    <section id="evaluasi-screen" class="w-full max-w-5xl hidden">
+      <div class="flex items-center justify-between bg-white p-4 rounded-2xl border border-slate-200 shadow-sm mb-6">
+        <div class="flex items-center space-x-3">
+          <button onclick="showScreen('menu-screen')" class="p-2 text-slate-500 hover:text-rose-600 rounded-xl hover:bg-slate-100 transition">
+            <i class="fa-solid fa-arrow-left text-lg"></i>
+          </button>
+          <div>
+            <h2 class="font-extrabold text-slate-800 text-xl">Evaluasi Kemampuan Aljabar</h2>
+            <p class="text-xs text-slate-500">20 Soal Pilihan Ganda Terstruktur</p>
+          </div>
+        </div>
+
+        <div id="eval-timer-box" class="bg-rose-50 border border-rose-200 px-3 py-1.5 rounded-xl font-mono text-xs font-bold text-rose-700 hidden">
+          <i class="fa-regular fa-clock mr-1"></i> Waktu: <span id="eval-timer">30:00</span>
+        </div>
+      </div>
+
+      <!-- Evaluation Start Cover Card -->
+      <div id="eval-start-card" class="bg-white rounded-3xl border border-slate-200 p-8 sm:p-12 text-center shadow-lg">
+        <div class="w-20 h-20 bg-rose-100 text-rose-600 rounded-3xl flex items-center justify-center text-4xl mx-auto mb-4">
+          <i class="fa-solid fa-clipboard-check"></i>
+        </div>
+        <h3 class="text-2xl font-black text-slate-800 mb-2">Uji Kompetensi Aljabar Fase D</h3>
+        <p class="text-slate-600 text-sm max-w-md mx-auto mb-6">Evaluasi ini terdiri dari 20 soal pilihan ganda yang mencakup konsep dasar, variabel, suku sejenis, operasi aljabar, dan substitusi nilai.</p>
+
+        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 max-w-sm mx-auto text-left text-xs space-y-2 mb-6">
+          <div class="flex justify-between"><span class="text-slate-500 font-bold">Jumlah Soal:</span> <span class="font-bold text-slate-800">20 Soal</span></div>
+          <div class="flex justify-between"><span class="text-slate-500 font-bold">Skala Nilai:</span> <span class="font-bold text-slate-800">0 – 100</span></div>
+          <div class="flex justify-between"><span class="text-slate-500 font-bold">Pembahasan Soal:</span> <span class="font-bold text-emerald-600">Tersedia setelah selesai</span></div>
+        </div>
+
+        <button onclick="startEvaluation()" class="bg-gradient-to-r from-rose-600 to-purple-600 hover:from-rose-700 hover:to-purple-700 text-white font-extrabold text-base px-8 py-3.5 rounded-2xl shadow-lg transition">
+          Mulai Mengerjakan Evaluasi
+        </button>
+      </div>
+
+      <!-- Evaluation Active Quiz Screen -->
+      <div id="eval-quiz-card" class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-10 shadow-xl hidden">
+        <!-- Question Index Matrix & Progress Bar -->
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-6 pb-4 border-b border-slate-100">
+          <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Soal <span id="eval-curr-num" class="text-rose-600 font-black text-base">1</span> dari 20</span>
+          <div id="eval-matrix" class="flex flex-wrap gap-1">
+            <!-- 20 Question Mini Indicator Buttons -->
+          </div>
+        </div>
+
+        <!-- Active Question Box -->
+        <div class="mb-8">
+          <div id="eval-question-text" class="text-lg font-bold text-slate-800 mb-6 leading-relaxed">
+            <!-- Injected Question Text -->
+          </div>
+          <div id="eval-options-container" class="space-y-3">
+            <!-- Injected 4 Multiple Choice Options -->
+          </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="flex justify-between items-center border-t border-slate-100 pt-6">
+          <button onclick="prevEvalQuestion()" id="btn-eval-prev" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition">
+            <i class="fa-solid fa-arrow-left mr-1"></i> Sebelum
+          </button>
+          <button onclick="nextEvalQuestion()" id="btn-eval-next" class="px-6 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl transition">
+            Lanjut <i class="fa-solid fa-arrow-right ml-1"></i>
+          </button>
+          <button onclick="submitEvaluation()" id="btn-eval-submit" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold rounded-xl transition hidden">
+            <i class="fa-solid fa-check-double mr-1"></i> Selesaikan Evaluasi
+          </button>
+        </div>
+      </div>
+
+      <!-- Evaluation Result Screen -->
+      <div id="eval-result-card" class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-10 shadow-xl hidden">
+        <!-- Results injected dynamically -->
+      </div>
+    </section>
+
+    <!-- ================= MENU 7: PENGEMBANG ================= -->
+    <section id="developer-screen" class="w-full max-w-4xl hidden">
+      <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-10 shadow-xl relative overflow-hidden">
+        <button onclick="showScreen('menu-screen')" class="mb-6 p-2 text-slate-500 hover:text-purple-600 rounded-xl hover:bg-slate-100 transition flex items-center gap-2 font-bold text-xs">
+          <i class="fa-solid fa-arrow-left"></i> Kembali ke Menu Utama
+        </button>
+
+        <div class="flex flex-col md:flex-row gap-8 items-center md:items-start">
+          <!-- Developer Photo Box (Custom uploadable) -->
+          <div class="flex flex-col items-center">
+            <div class="w-40 h-40 rounded-3xl bg-slate-100 border-4 border-purple-500 shadow-xl overflow-hidden relative group">
+              <img id="dev-photo-img" src="https://placehold.co/300x300/7C3AED/FFFFFF?text=Ari+Suryadi" alt="Foto Pengembang" class="w-full h-full object-cover">
+              <label for="upload-dev-photo" class="absolute inset-0 bg-black/50 text-white text-xs font-bold flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition cursor-pointer">
+                <i class="fa-solid fa-camera text-xl mb-1"></i> Unggah Foto
+              </label>
+              <input type="file" id="upload-dev-photo" accept="image/*" class="hidden" onchange="handleImageUpload(event, 'dev-photo-img', 'savedDevPhoto')">
+            </div>
+            <span class="text-xs text-slate-400 mt-2 italic">Klik gambar untuk ubah foto</span>
+          </div>
+
+          <!-- Developer Profile Details -->
+          <div class="flex-1 text-center md:text-left space-y-4">
+            <div>
+              <span class="bg-purple-100 text-purple-700 font-extrabold text-xs px-3 py-1 rounded-full uppercase tracking-wider">Identitas Pengembang Media</span>
+              <h2 class="text-3xl font-black text-slate-900 mt-2">Ari Suryadi, S.Pd.</h2>
+              <p class="text-slate-600 font-semibold">Guru Matematika SMP</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <span class="text-slate-400 font-bold block mb-0.5">Instansi Sekolah:</span>
+                <span class="font-extrabold text-slate-700 text-sm">SMP Negeri Satu Atap 3 Kalianda</span>
+              </div>
+              <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <span class="text-slate-400 font-bold block mb-0.5">Mata Pelajaran:</span>
+                <span class="font-extrabold text-slate-700 text-sm">Matematika</span>
+              </div>
+              <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <span class="text-slate-400 font-bold block mb-0.5">Kelas / Fase:</span>
+                <span class="font-extrabold text-slate-700 text-sm">Kelas VII / Fase D</span>
+              </div>
+              <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <span class="text-slate-400 font-bold block mb-0.5">Materi Pokok:</span>
+                <span class="font-extrabold text-slate-700 text-sm">Aljabar SMP</span>
+              </div>
+            </div>
+
+            <!-- School Logo Custom Upload Box -->
+            <div class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 rounded-xl bg-slate-100 border border-slate-300 flex items-center justify-center overflow-hidden">
+                  <img id="school-logo-img" src="https://placehold.co/100x100/2563EB/FFFFFF?text=SMPN" alt="Logo Sekolah" class="w-full h-full object-contain">
+                </div>
+                <div>
+                  <span class="text-xs font-bold text-slate-700 block">Logo Instansi Sekolah</span>
+                  <label for="upload-school-logo" class="text-xs text-blue-600 hover:underline font-semibold cursor-pointer">
+                    + Unggah Logo Kustom
+                  </label>
+                  <input type="file" id="upload-school-logo" accept="image/*" class="hidden" onchange="handleImageUpload(event, 'school-logo-img', 'savedSchoolLogo')">
+                </div>
+              </div>
+
+              <div class="text-xs text-slate-400 italic">
+                Media Pembelajaran Interaktif (MPI) Kurikulum Merdeka
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL PETUNJUK -->
+  <div id="guide-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+      <button onclick="closeModal('guide-modal')" class="absolute top-5 right-5 text-slate-400 hover:text-slate-700 text-xl">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div class="flex items-center space-x-3 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center text-xl font-bold">
+          <i class="fa-solid fa-compass"></i>
+        </div>
+        <h3 class="text-xl font-black text-slate-800">Petunjuk Penggunaan Aplikasi</h3>
+      </div>
+      <div class="space-y-3 text-xs text-slate-600 leading-relaxed mb-6">
+        <p> Selamat datang di <b>ALJABAR EXPLORER</b>! Berikut panduan penggunaan aplikasi:</p>
+        <ul class="list-disc list-inside space-y-1.5 font-medium">
+          <li><b>Top Nav Control:</b> Gunakan ikon speaker di kanan atas untuk menyalakan/mematikan narasi audio Bahasa Indonesia dan suara efek.</li>
+          <li><b>Materi:</b> Pelajari 6 topik aljabar secara runtut. Dengarkan narasi audio di setiap topik!</li>
+          <li><b>Simulasi:</b> Uji langsung slider nilai variabel dan gabungkan ubin aljabar suku sejenis.</li>
+          <li><b>Praktikum:</b> Pecahkan masalah belanja di kantin sekolah dan model luas perkalian.</li>
+          <li><b>Game:</b> Raih skor tertinggi dan kumpulkan Bintang di 4 minigame edukasi.</li>
+          <li><b>LKPD Digital:</b> Isilah Lembar Kerja Peserta Didik dan cetak hasil kinerjamu.</li>
+          <li><b>Evaluasi:</b> Kerjakan 20 soal pilihan ganda untuk mengetahui tingkat penguasaan materimu.</li>
+        </ul>
+      </div>
+      <button onclick="closeModal('guide-modal')" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-2xl transition">
+        Saya Mengerti, Ayo Mulai!
+      </button>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT APPLICATION LOGIC -->
+  <script>
+    /* ==========================================================================
+       GLOBAL STATE PERSISTENCE & DATA
+       ========================================================================== */
+    const APP_STATE = {
+      userName: localStorage.getItem('aljabar_userName') || 'Siswa',
+      stars: parseInt(localStorage.getItem('aljabar_stars')) || 0,
+      completedMateri: JSON.parse(localStorage.getItem('aljabar_materi')) || [],
+      evalScore: parseInt(localStorage.getItem('aljabar_evalScore')) || 0,
+      speechEnabled: true,
+      sfxEnabled: true,
+      speechSpeed: 1.0
+    };
+
+    // Web Audio API Synthesizer
+    const AudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playSoundEffect(type) {
+      if (!APP_STATE.sfxEnabled) return;
+      try {
+        const osc = AudioCtx.createOscillator();
+        const gain = AudioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(AudioCtx.destination);
+
+        if (type === 'correct') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(523.25, AudioCtx.currentTime); // C5
+          osc.frequency.setValueAtTime(659.25, AudioCtx.currentTime + 0.1); // E5
+          osc.frequency.setValueAtTime(783.99, AudioCtx.currentTime + 0.2); // G5
+          gain.gain.setValueAtTime(0.2, AudioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, AudioCtx.currentTime + 0.4);
+          osc.start();
+          osc.stop(AudioCtx.currentTime + 0.4);
+        } else if (type === 'wrong') {
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(220, AudioCtx.currentTime); // A3
+          osc.frequency.setValueAtTime(164.81, AudioCtx.currentTime + 0.15); // E3
+          gain.gain.setValueAtTime(0.2, AudioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, AudioCtx.currentTime + 0.35);
+          osc.start();
+          osc.stop(AudioCtx.currentTime + 0.35);
+        } else if (type === 'click') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(800, AudioCtx.currentTime);
+          gain.gain.setValueAtTime(0.05, AudioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, AudioCtx.currentTime + 0.05);
+          osc.start();
+          osc.stop(AudioCtx.currentTime + 0.05);
+        }
+      } catch (e) {
+        console.warn('Audio play error:', e);
+      }
+    }
+
+    // Web Speech API Voice Narrator
+    function speakText(text) {
+      if (!APP_STATE.speechEnabled || !('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel(); // Prevent audio overlap!
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'id-ID';
+      utterance.rate = APP_STATE.speechSpeed;
+      window.speechSynthesis.speak(utterance);
+    }
+    function stopSpeech() {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    }
+
+    /* ==========================================================================
+       NAVIGATION & APP FLOW
+       ========================================================================== */
+    function showScreen(screenId) {
+      stopSpeech(); // Stop speech whenever user changes screens!
+      playSoundEffect('click');
+      const screens = ['welcome-screen', 'menu-screen', 'materi-screen', 'simulasi-screen', 'praktikum-screen', 'game-screen', 'lkpd-screen', 'evaluasi-screen', 'developer-screen'];
+      screens.forEach(s => {
+        const el = document.getElementById(s);
+        if (el) el.classList.add('hidden');
+      });
+
+      const activeEl = document.getElementById(screenId);
+      if (activeEl) {
+        activeEl.classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      // Show/Hide Header
+      const header = document.getElementById('main-header');
+      if (screenId === 'welcome-screen') {
+        header.classList.add('hidden');
+      } else {
+        header.classList.remove('hidden');
+      }
+
+      updateUIState();
+    }
+
+    function startApp() {
+      const inputName = document.getElementById('student-name-input').value.trim();
+      if (inputName) {
+        APP_STATE.userName = inputName;
+        localStorage.setItem('aljabar_userName', inputName);
+      }
+      showScreen('menu-screen');
+      speakText(`Selamat datang di Aljabar Explorer, ${APP_STATE.userName}! Mari kita menjelajahi dunia Aljabar dengan cara yang menyenangkan. Bersiaplah belajar, mencoba, bermain, dan menjadi hebat dalam Matematika!`);
+    }
+
+    function updateUIState() {
+      document.getElementById('user-display-name').innerText = APP_STATE.userName;
+      document.getElementById('user-stars').innerText = APP_STATE.stars;
+
+      // Progress bar calculation
+      const materiPct = (APP_STATE.completedMateri.length / 6) * 100;
+      document.getElementById('overall-progress-bar').style.width = `${materiPct}%`;
+      document.getElementById('badge-materi-status').innerText = `${APP_STATE.completedMateri.length}/6 Topik`;
+
+      if (APP_STATE.evalScore > 0) {
+        document.getElementById('badge-eval-score').innerText = `Nilai Evaluasi: ${APP_STATE.evalScore}`;
+      }
+    }
+
+    function addStars(num) {
+      APP_STATE.stars += num;
+      localStorage.setItem('aljabar_stars', APP_STATE.stars);
+      updateUIState();
+      playSoundEffect('correct');
+    }
+
+    function toggleSpeech() {
+      APP_STATE.speechEnabled = !APP_STATE.speechEnabled;
+      const btn = document.getElementById('btn-toggle-speech');
+      if (APP_STATE.speechEnabled) {
+        btn.classList.replace('text-slate-400', 'text-slate-600');
+        speakText('Narasi suara diaktifkan');
+      } else {
+        stopSpeech();
+        btn.classList.replace('text-slate-600', 'text-slate-400');
+      }
+    }
+
+    function toggleSFX() {
+      APP_STATE.sfxEnabled = !APP_STATE.sfxEnabled;
+      const btn = document.getElementById('btn-toggle-sfx');
+      btn.classList.toggle('text-slate-400');
+    }
+
+    function openModal(id) { document.getElementById(id).classList.remove('hidden'); playSoundEffect('click'); }
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); playSoundEffect('click'); }
+
+    function confirmResetProgress() {
+      if (confirm('Apakah kamu yakin ingin mereset seluruh progres belajar dan bintangmu?')) {
+        localStorage.clear();
+        APP_STATE.stars = 0;
+        APP_STATE.completedMateri = [];
+        APP_STATE.evalScore = 0;
+        updateUIState();
+        alert('Progres belajar telah direset!');
+      }
+    }
+
+    /* ==========================================================================
+       MENU 1: MATERI DATA & LOGIC
+       ========================================================================== */
+    const MATERI_DATA = [
+      {
+        id: 1,
+        title: "1. Pengertian & Konsep Dasar Aljabar",
+        objective: "Siswa mampu memahami bentuk aljabar sebagai pemisalan nilai yang belum diketahui dalam kehidupan sehari-hari.",
+        explanation: "Aljabar adalah cabang matematika yang menggunakan huruf atau simbol untuk mewakili angka atau nilai yang belum pasti. Contohnya dalam kehidupan sehari-hari: Jika Ibu membawa 2 kantong misterius berisi apel dan 3 apel di luar kantong, kita bisa menyatakannya dalam bentuk aljabar sebagai <b>2x + 3</b>.",
+        visualSvg: `<div class="bg-blue-50 p-6 rounded-2xl border border-blue-200 text-center">
+          <div class="flex justify-center items-center space-x-3 mb-3">
+            <div class="bg-blue-500 text-white px-4 py-2 rounded-xl font-bold">💼 Kantong Apel (x)</div>
+            <div class="bg-blue-500 text-white px-4 py-2 rounded-xl font-bold">💼 Kantong Apel (x)</div>
+            <span class="text-2xl font-bold text-slate-400">+</span>
+            <span class="text-3xl">🍎🍎🍎</span>
+          </div>
+          <div class="text-xl font-black text-blue-700">Bentuk Aljabar: 2x + 3</div>
+        </div>`,
+        exampleQuestion: "Pak Andi membeli 3 dus buku dan 5 buku eceran. Tuliskan bentuk aljabarnya jika 1 dus buku dinyatakan dengan y!",
+        exampleSolution: "1. Misalkan 1 dus buku = y.<br>2. Karena ada 3 dus buku, maka nilainya adalah 3y.<br>3. Ditambah 5 buku eceran.<br><b>Jadi, bentuk aljabarnya adalah 3y + 5.</b>",
+        quiz: {
+          q: "Jika 1 kotak kelereng dinyatakan dengan variabel 'k', maka bentuk aljabar dari '4 kotak kelereng dan 2 kelereng' adalah...",
+          options: ["4k + 2", "2k + 4", "6k", "4 + 2"],
+          correct: 0,
+          explanation: "4 kotak kelereng melambangkan 4k dan 2 kelereng eceran melambangkan konstanta 2, sehingga menjadi 4k + 2."
+        }
+      },
+      {
+        id: 2,
+        title: "2. Variabel, Koefisien, Konstanta, & Suku",
+        objective: "Siswa dapat mengidentifikasi variabel, koefisien, konstanta, dan suku pada suatu bentuk aljabar.",
+        explanation: "Dalam bentuk aljabar <b>5x + 7</b>:<br>• <b>Variabel:</b> Huruf penanda nilai belum diketahui (yaitu <b>x</b>).<br>• <b>Koefisien:</b> Angka yang melekat di depan variabel (yaitu <b>5</b>).<br>• <b>Konstanta:</b> Angka berdiri sendiri tanpa variabel (yaitu <b>7</b>).<br>• <b>Suku:</b> Bagian aljabar yang dipisahkan oleh tanda + atau - (yaitu <b>5x</b> dan <b>7</b>).",
+        visualSvg: `<div class="bg-purple-50 p-6 rounded-2xl border border-purple-200 text-center">
+          <div class="inline-flex items-baseline space-x-2 text-4xl font-black mb-4">
+            <span class="text-blue-600 bg-blue-100 px-3 py-1 rounded-xl" title="Koefisien">5</span>
+            <span class="text-purple-600 bg-purple-100 px-3 py-1 rounded-xl" title="Variabel">x</span>
+            <span class="text-slate-400">+</span>
+            <span class="text-emerald-600 bg-emerald-100 px-3 py-1 rounded-xl" title="Konstanta">7</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2 text-xs font-bold">
+            <div class="text-blue-600">Koefisien = 5</div>
+            <div class="text-purple-600">Variabel = x</div>
+            <div class="text-emerald-600">Konstanta = 7</div>
+          </div>
+        </div>`,
+        exampleQuestion: "Tentukan variabel, koefisien dari y, dan konstanta pada bentuk aljabar: 8y - 12!",
+        exampleSolution: "• Variabel = y<br>• Koefisien y = 8<br>• Konstanta = -12",
+        quiz: {
+          q: "Pada bentuk aljabar 3a² - 5a + 9, angka 9 sebutannya adalah...",
+          options: ["Variabel", "Koefisien", "Konstanta", "Suku Sejenis"],
+          correct: 2,
+          explanation: "Angka 9 berdiri sendiri tanpa variabel, sehingga disebut Konstanta."
+        }
+      },
+      {
+        id: 3,
+        title: "3. Suku Sejenis & Tidak Sejenis",
+        objective: "Siswa dapat membedakan suku-suku yang sejenis dan tidak sejenis.",
+        explanation: "<b>Suku Sejenis</b> adalah suku-suku yang memiliki <b>variabel dan pangkat variabel yang persis sama</b>. Angka koefisiennya boleh berbeda.<br>• Contoh Suku Sejenis: 3x dan 7x | -2y² dan 5y²<br>• Contoh Suku Tidak Sejenis: 3x dan 3y (variabel beda) | 4x dan 4x² (pangkat beda).",
+        visualSvg: `<div class="bg-emerald-50 p-6 rounded-2xl border border-emerald-200 text-center">
+          <div class="flex justify-center gap-4 mb-3">
+            <span class="bg-emerald-600 text-white font-black px-4 py-2 rounded-xl">4x</span>
+            <span class="bg-emerald-600 text-white font-black px-4 py-2 rounded-xl">9x</span>
+          </div>
+          <p class="text-xs font-bold text-emerald-800">✅ SEJENIS (Sama-sama memiliki variabel x berpangkat 1)</p>
+        </div>`,
+        exampleQuestion: "Kelompokkan manakah yang merupakan suku sejenis dari daftar berikut: 2a, 5b, -7a, 3a²!",
+        exampleSolution: "Suku yang sejenis adalah <b>2a dan -7a</b> karena sama-sama memiliki variabel 'a' berpangkat 1.",
+        quiz: {
+          q: "Pasangan suku berikut yang merupakan suku SEJENIS adalah...",
+          options: ["5x dan 5y", "3ab dan -7ab", "2x² dan 2x", "4a dan 4"],
+          correct: 1,
+          explanation: "3ab dan -7ab memiliki variabel ab yang sama persis."
+        }
+      },
+      {
+        id: 4,
+        title: "4. Penjumlahan & Pengurangan Bentuk Aljabar",
+        objective: "Siswa mampu melakukan operasi penjumlahan dan pengurangan pada suku-suku sejenis.",
+        explanation: "Penjumlahan dan pengurangan dalam aljabar <b>HANYA DAPAT DILAKUKAN PADA SUKU SEJENIS</b> dengan cara menjumlahkan atau mengurangkan angka koefisiennya.<br>Rumus: <b>aX + bX = (a + b)X</b>",
+        visualSvg: `<div class="bg-amber-50 p-6 rounded-2xl border border-amber-200 text-center">
+          <div class="text-2xl font-black text-amber-900 mb-2">3x + 4x = (3 + 4)x = 7x</div>
+          <p class="text-xs text-amber-700">Suku tidak sejenis seperti (3x + 2y) TIDAK BISA dijumlahkan menjadi 5xy!</p>
+        </div>`,
+        exampleQuestion: "Sederhanakan bentuk aljabar: (5x + 3y) + (2x - y)!",
+        exampleSolution: "1. Kumpulkan suku sejenis: (5x + 2x) + (3y - y)<br>2. Hitung koefisiennya: 7x + 2y.<br><b>Hasil akhir = 7x + 2y.</b>",
+        quiz: {
+          q: "Hasil penyederhanaan dari 8m - 3n - 2m + 7n adalah...",
+          options: ["6m + 4n", "10m + 10n", "6m - 4n", "5mn"],
+          correct: 0,
+          explanation: "(8m - 2m) + (-3n + 7n) = 6m + 4n."
+        }
+      },
+      {
+        id: 5,
+        title: "5. Perkalian & Pembagian Bentuk Aljabar",
+        objective: "Siswa dapat menyelesaikan operasi perkalian distributif dan pembagian bentuk aljabar.",
+        explanation: "• <b>Perkalian Distributif:</b> a(b + c) = ab + ac<br>• <b>Perkalian Variabel:</b> x · x = x²<br>• <b>Pembagian:</b> Membagi koefisien dengan koefisien dan variabel sejenis.",
+        visualSvg: `<div class="bg-rose-50 p-6 rounded-2xl border border-rose-200 text-center">
+          <div class="text-2xl font-black text-rose-900 mb-2">2(3x + 5) = 6x + 10</div>
+          <p class="text-xs text-rose-700 font-bold">Kalikan angka di luar kurung ke SETIAP suku di dalam kurung!</p>
+        </div>`,
+        exampleQuestion: "Tentukan hasil kali dari 3x(2x - 4)!",
+        exampleSolution: "1. 3x · 2x = 6x²<br>2. 3x · (-4) = -12x<br><b>Hasil akhir = 6x² - 12x.</b>",
+        quiz: {
+          q: "Hasil perkalian dari 4(2a - 3b) adalah...",
+          options: ["8a - 3b", "8a - 12b", "6a - 7b", "8ab"],
+          correct: 1,
+          explanation: "4 × 2a = 8a dan 4 × (-3b) = -12b, jadi 8a - 12b."
+        }
+      },
+      {
+        id: 6,
+        title: "6. Substitusi Nilai ke dalam Bentuk Aljabar",
+        objective: "Siswa mampu mengganti variabel dengan nilai angka yang ditentukan untuk menghitung hasil akhir.",
+        explanation: "<b>Substitusi</b> artinya mengganti (menukar) huruf variabel dengan angka yang diketahui. Contoh: Jika x = 3, maka nilai dari 4x + 2 adalah 4(3) + 2 = 12 + 2 = 14.",
+        visualSvg: `<div class="bg-indigo-50 p-6 rounded-2xl border border-indigo-200 text-center">
+          <div class="text-2xl font-black text-indigo-900 mb-2">Jika x = 4, maka 5x - 3 = 5(4) - 3 = 17</div>
+        </div>`,
+        exampleQuestion: "Jika a = 2 dan b = 5, hitunglah nilai dari 3a + 2b - 4!",
+        exampleSolution: "1. Ganti a dengan 2 dan b dengan 5: 3(2) + 2(5) - 4<br>2. Hitung: 6 + 10 - 4 = 12.<br><b>Hasil = 12.</b>",
+        quiz: {
+          q: "Jika x = -2, maka nilai dari x² + 3x + 5 adalah...",
+          options: ["3", "15", "-1", "7"],
+          correct: 0,
+          explanation: "(-2)² + 3(-2) + 5 = 4 - 6 + 5 = 3."
+        }
+      }
+    ];
+
+    let activeMateriIdx = 0;
+
+    function renderMateriTabs() {
+      const tabsContainer = document.getElementById('materi-tabs');
+      tabsContainer.innerHTML = MATERI_DATA.map((t, idx) => `
+        <button onclick="loadMateriTopic(${idx})" class="px-3 py-1.5 rounded-xl text-xs font-bold transition ${activeMateriIdx === idx ? 'bg-blue-600 text-white shadow' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">
+          Topik ${idx + 1}
+        </button>
+      `).join('');
+    }
+
+    function loadMateriTopic(idx) {
+      activeMateriIdx = idx;
+      renderMateriTabs();
+      const topic = MATERI_DATA[idx];
+
+      // Mark topic as completed in state
+      if (!APP_STATE.completedMateri.includes(topic.id)) {
+        APP_STATE.completedMateri.push(topic.id);
+        localStorage.setItem('aljabar_materi', JSON.stringify(APP_STATE.completedMateri));
+        updateUIState();
+      }
+
+      const container = document.getElementById('materi-content-card');
+      container.innerHTML = `
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-4 border-b border-slate-100">
+          <div>
+            <span class="bg-blue-100 text-blue-700 font-extrabold text-xs px-3 py-1 rounded-full uppercase tracking-wider">Topik ${topic.id} dari 6</span>
+            <h3 class="text-2xl font-black text-slate-800 mt-1">${topic.title}</h3>
+          </div>
+          <button onclick="speakText('${topic.title}. ${topic.explanation.replace(/<[^>]*>?/gm, '')}')" class="bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold px-4 py-2 rounded-xl text-xs transition flex items-center gap-2 border border-blue-200">
+            <i class="fa-solid fa-volume-high"></i> Dengarkan Penjelasan
+          </button>
+        </div>
+
+        <div class="bg-blue-50/60 p-4 rounded-2xl border border-blue-100 text-xs text-blue-900 font-medium mb-6">
+          <i class="fa-solid fa-bullseye mr-1 text-blue-600"></i> <b>Tujuan Pembelajaran:</b> ${topic.objective}
+        </div>
+
+        <div class="prose max-w-none text-slate-700 text-sm leading-relaxed mb-6">
+          <p>${topic.explanation}</p>
+        </div>
+
+        <!-- Visual Diagram -->
+        <div class="mb-8">${topic.visualSvg}</div>
+
+        <!-- Example & Step solution -->
+        <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200 mb-8">
+          <h4 class="font-bold text-slate-800 text-sm mb-2 flex items-center gap-2"><i class="fa-solid fa-lightbulb text-amber-500"></i> Contoh Soal & Pembahasan Bertahap:</h4>
+          <p class="text-sm font-semibold text-slate-700 mb-3">${topic.exampleQuestion}</p>
+          <div class="bg-white p-4 rounded-xl border border-slate-200 text-xs text-slate-600 leading-relaxed">
+            ${topic.exampleSolution}
+          </div>
+        </div>
+
+        <!-- Mini Quiz Practice -->
+        <div class="bg-gradient-to-r from-purple-900 to-indigo-900 text-white p-6 rounded-2xl shadow-md mb-8">
+          <span class="text-xs font-bold text-purple-300 uppercase tracking-wider block mb-2">⚡ Kuis Mini Interaktif:</span>
+          <p class="font-bold text-sm mb-4">${topic.quiz.q}</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
+            ${topic.quiz.options.map((opt, oIdx) => `
+              <button onclick="checkMateriQuiz(${idx}, ${oIdx})" class="p-3 bg-white/10 hover:bg-white/20 text-left rounded-xl text-xs font-semibold transition border border-white/10">
+                ${String.fromCharCode(65 + oIdx)}. ${opt}
+              </button>
+            `).join('')}
+          </div>
+          <div id="materi-quiz-feedback-${idx}" class="text-xs font-bold hidden p-3 rounded-xl"></div>
+        </div>
+
+        <!-- Next Topic Nav -->
+        <div class="flex justify-between items-center border-t border-slate-100 pt-6">
+          <button onclick="loadMateriTopic(${Math.max(0, idx - 1)})" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition" ${idx === 0 ? 'disabled opacity-50' : ''}>
+            <i class="fa-solid fa-arrow-left mr-1"></i> Topik Sebelumnya
+          </button>
+          <button onclick="loadMateriTopic(${Math.min(5, idx + 1)})" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-xl transition shadow flex items-center gap-1.5" ${idx === 5 ? 'disabled opacity-50' : ''}>
+            Materi Selanjutnya <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      `;
+    }
+
+    function checkMateriQuiz(topicIdx, chosenIdx) {
+      const topic = MATERI_DATA[topicIdx];
+      const feedbackEl = document.getElementById(`materi-quiz-feedback-${topicIdx}`);
+      feedbackEl.classList.remove('hidden', 'bg-emerald-500/20', 'text-emerald-300', 'bg-rose-500/20', 'text-rose-300');
+
+      if (chosenIdx === topic.quiz.correct) {
+        feedbackEl.classList.add('bg-emerald-500/20', 'text-emerald-300');
+        feedbackEl.innerHTML = `✅ Benar sekali! ${topic.quiz.explanation} (+1 Star)`;
+        addStars(1);
+        speakText('Jawaban kamu benar! Bagus sekali.');
+      } else {
+        feedbackEl.classList.add('bg-rose-500/20', 'text-rose-300');
+        feedbackEl.innerHTML = `❌ Kurang tepat. Coba lagi ya!`;
+        playSoundEffect('wrong');
+        speakText('Coba lagi ya.');
+      }
+    }
+
+    /* ==========================================================================
+       MENU 2: SIMULASI LOGIC
+       ========================================================================== */
+    function switchSimulasi(simNum) {
+      playSoundEffect('click');
+      [1, 2, 3].forEach(n => {
+        document.getElementById(`sim-content-${n}`).classList.add('hidden');
+        const tab = document.getElementById(`sim-tab-${n}`);
+        tab.className = "flex-1 py-2.5 text-sm font-bold rounded-xl transition text-slate-500 hover:text-purple-600";
+      });
+      document.getElementById(`sim-content-${simNum}`).classList.remove('hidden');
+      const activeTab = document.getElementById(`sim-tab-${simNum}`);
+      activeTab.className = "flex-1 py-2.5 text-sm font-bold rounded-xl transition text-purple-600 bg-purple-50 shadow-sm";
+
+      if (simNum === 1) updateSim1();
+      if (simNum === 2) resetSim2();
+      if (simNum === 3) updateSim3('2x+3x');
+    }
+
+    // SIM 1
+    function updateSim1() {
+      const x = parseInt(document.getElementById('sim1-slider').value);
+      document.getElementById('sim1-x-val').innerText = `x = ${x}`;
+      document.getElementById('sim1-calc-x').innerText = x;
+      document.getElementById('sim1-calc-step').innerText = `${3 * x} + 5`;
+      document.getElementById('sim1-calc-result').innerText = (3 * x) + 5;
+
+      const boxContainer = document.getElementById('sim1-boxes-container');
+      boxContainer.innerHTML = [1, 2, 3].map(() => `
+        <div class="w-10 h-10 bg-purple-600 text-white font-bold rounded-xl flex items-center justify-center text-xs shadow">
+          ${x}
+        </div>
+      `).join('');
+    }
+
+    // SIM 2: Grouping Suku
+    let sim2Tiles = [
+      { id: 1, text: '2x', type: 'x' },
+      { id: 2, text: '5y', type: 'y' },
+      { id: 3, text: '3x', type: 'x' },
+      { id: 4, text: '4y', type: 'y' },
+      { id: 5, text: '-x', type: 'x' },
+      { id: 6, text: '7y', type: 'y' }
+    ];
+    let selectedTileId = null;
+
+    function resetSim2() {
+      selectedTileId = null;
+      renderSim2Pool();
+      document.getElementById('sim2-basket-x').innerHTML = '';
+      document.getElementById('sim2-basket-y').innerHTML = '';
+    }
+
+    function renderSim2Pool() {
+      const pool = document.getElementById('sim2-cards-pool');
+      pool.innerHTML = sim2Tiles.map(t => `
+        <button onclick="selectTile(${t.id})" id="tile-${t.id}" class="px-4 py-2 bg-white border-2 ${selectedTileId === t.id ? 'border-amber-400 bg-amber-50 scale-105' : 'border-slate-200'} font-black text-slate-700 rounded-xl shadow-sm transition">
+          ${t.text}
+        </button>
+      `).join('');
+    }
+
+    function selectTile(id) {
+      selectedTileId = id;
+      playSoundEffect('click');
+      renderSim2Pool();
+    }
+
+    function placeTileInBasket(targetType) {
+      if (!selectedTileId) return;
+      const tile = sim2Tiles.find(t => t.id === selectedTileId);
+      if (!tile) return;
+
+      if (tile.type === targetType) {
+        playSoundEffect('correct');
+        speakText(`Tepat! ${tile.text} adalah suku variabel ${targetType}.`);
+        const basket = document.getElementById(`sim2-basket-${targetType}`);
+        basket.innerHTML += `<span class="px-3 py-1 bg-white border border-slate-300 font-extrabold text-sm rounded-lg shadow-sm">${tile.text}</span>`;
+        
+        // Remove from pool display
+        const tileEl = document.getElementById(`tile-${tile.id}`);
+        if (tileEl) tileEl.remove();
+        selectedTileId = null;
+      } else {
+        playSoundEffect('wrong');
+        speakText(`Kurang tepat. ${tile.text} mempunyai variabel ${tile.type}.`);
+      }
+    }
+
+    // SIM 3: Algebra Tiles
+    function updateSim3(op) {
+      [1, 2, 3].forEach(i => {
+        const btn = document.getElementById(`sim3-btn-${i}`);
+        if (btn) btn.className = "px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 transition";
+      });
+
+      const board = document.getElementById('sim3-display-board');
+      if (op === '2x+3x') {
+        document.getElementById('sim3-btn-1').className = "px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white transition";
+        board.innerHTML = `
+          <div class="text-xs text-emerald-400 font-bold mb-4">Penggabungan 2x + 3x menjadi 5x:</div>
+          <div class="flex flex-wrap items-center justify-center gap-2 mb-4">
+            <span class="px-3 py-2 bg-blue-600 rounded-xl font-black">x</span>
+            <span class="px-3 py-2 bg-blue-600 rounded-xl font-black">x</span>
+            <span class="text-xl font-bold text-amber-400 mx-2">+</span>
+            <span class="px-3 py-2 bg-blue-600 rounded-xl font-black">x</span>
+            <span class="px-3 py-2 bg-blue-600 rounded-xl font-black">x</span>
+            <span class="px-3 py-2 bg-blue-600 rounded-xl font-black">x</span>
+          </div>
+          <div class="text-xl font-extrabold text-emerald-300">= 5 Ubin Variabel x (5x)</div>
+        `;
+      } else if (op === '4x-2x') {
+        document.getElementById('sim3-btn-2').className = "px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white transition";
+        board.innerHTML = `
+          <div class="text-xs text-emerald-400 font-bold mb-4">Pengurangan 4x - 2x (Mencoret 2 Ubin x):</div>
+          <div class="flex flex-wrap items-center justify-center gap-2 mb-4">
+            <span class="px-3 py-2 bg-blue-600 rounded-xl font-black">x</span>
+            <span class="px-3 py-2 bg-blue-600 rounded-xl font-black">x</span>
+            <span class="px-3 py-2 bg-blue-600 rounded-xl font-black line-through opacity-40">x</span>
+            <span class="px-3 py-2 bg-blue-600 rounded-xl font-black line-through opacity-40">x</span>
+          </div>
+          <div class="text-xl font-extrabold text-emerald-300">= Sisa 2 Ubin Variabel x (2x)</div>
+        `;
+      } else if (op === '3y+2y') {
+        document.getElementById('sim3-btn-3').className = "px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white transition";
+        board.innerHTML = `
+          <div class="text-xs text-purple-400 font-bold mb-4">Penggabungan 3y + 2y menjadi 5y:</div>
+          <div class="flex flex-wrap items-center justify-center gap-2 mb-4">
+            <span class="px-3 py-2 bg-purple-600 rounded-xl font-black">y</span>
+            <span class="px-3 py-2 bg-purple-600 rounded-xl font-black">y</span>
+            <span class="px-3 py-2 bg-purple-600 rounded-xl font-black">y</span>
+            <span class="text-xl font-bold text-amber-400 mx-2">+</span>
+            <span class="px-3 py-2 bg-purple-600 rounded-xl font-black">y</span>
+            <span class="px-3 py-2 bg-purple-600 rounded-xl font-black">y</span>
+          </div>
+          <div class="text-xl font-extrabold text-purple-300">= 5 Ubin Variabel y (5y)</div>
+        `;
+      }
+    }
+
+    /* ==========================================================================
+       MENU 3: PRAKTIKUM LOGIC
+       ========================================================================== */
+    function switchPraktikum(prakNum) {
+      playSoundEffect('click');
+      [1, 2, 3].forEach(n => {
+        document.getElementById(`prak-content-${n}`).classList.add('hidden');
+        document.getElementById(`prak-tab-${n}`).className = "flex-1 py-2.5 text-sm font-bold rounded-xl transition text-slate-500 hover:text-emerald-600";
+      });
+      document.getElementById(`prak-content-${prakNum}`).classList.remove('hidden');
+      document.getElementById(`prak-tab-${prakNum}`).className = "flex-1 py-2.5 text-sm font-bold rounded-xl transition text-emerald-600 bg-emerald-50 shadow-sm";
+    }
+
+    // Prak 1 Toko
+    let qtyX = 3;
+    let qtyY = 2;
+    function changeQty(item, delta) {
+      playSoundEffect('click');
+      if (item === 'x') qtyX = Math.max(0, qtyX + delta);
+      if (item === 'y') qtyY = Math.max(0, qtyY + delta);
+
+      document.getElementById('qty-x').innerText = qtyX;
+      document.getElementById('qty-y').innerText = qtyY;
+
+      document.getElementById('prak1-expression').innerText = `${qtyX}x + ${qtyY}y`;
+      document.getElementById('prak1-sub-detail').innerText = `${qtyX}(4.000) + ${qtyY}(2.000) = ${(qtyX * 4000).toLocaleString('id-ID')} + ${(qtyY * 2000).toLocaleString('id-ID')}`;
+
+      const total = (qtyX * 4000) + (qtyY * 2000);
+      document.getElementById('prak1-total').innerText = `Rp${total.toLocaleString('id-ID')}`;
+    }
+
+    // Prak 2 Component Builder
+    let prak2WorkspaceTiles = [];
+    function addPrak2Tile(val) {
+      playSoundEffect('click');
+      prak2WorkspaceTiles.push(val);
+      renderPrak2Workspace();
+    }
+    function clearPrak2Workspace() {
+      prak2WorkspaceTiles = [];
+      renderPrak2Workspace();
+    }
+    function renderPrak2Workspace() {
+      const container = document.getElementById('prak2-workspace');
+      container.innerHTML = prak2WorkspaceTiles.map(t => `
+        <span class="px-3 py-1 bg-amber-400 text-slate-900 rounded-xl text-lg">${t}</span>
+      `).join('');
+    }
+    function checkPrak2Answer() {
+      const built = prak2WorkspaceTiles.join('');
+      if (built === '5x-3' || built === '5x+-3') {
+        playSoundEffect('correct');
+        speakText('Hebat! Jawaban praktikum kamu benar.');
+        addStars(2);
+        alert('🎉 Selamat! Bentuk Aljabar 5x - 3 berhasil kamu susun dengan sempurna!');
+      } else {
+        playSoundEffect('wrong');
+        speakText('Periksa kembali susunan komponen aljabar kamu.');
+        alert('Coba lagi ya! Misi meminta koefisien x sebesar 5 dan konstanta -3.');
+      }
+    }
+
+    /* ==========================================================================
+       MENU 4: GAME LOGIC
+       ========================================================================== */
+    let gameTimerInterval = null;
+
+    function startMinigame(gNum) {
+      playSoundEffect('click');
+      document.getElementById('game-selection').classList.add('hidden');
+      document.getElementById('game-play-area').classList.remove('hidden');
+
+      const container = document.getElementById('game-active-container');
+      if (gNum === 1) renderGame1(container);
+      if (gNum === 2) renderGame2(container);
+      if (gNum === 3) renderGame3(container);
+      if (gNum === 4) renderGame4(container);
+    }
+
+    function backToGameSelection() {
+      if (gameTimerInterval) clearInterval(gameTimerInterval);
+      document.getElementById('game-play-area').classList.add('hidden');
+      document.getElementById('game-selection').classList.remove('hidden');
+    }
+
+    // GAME 1: Tebak Siapa Aku
+    let g1Score = 0;
+    let g1Round = 0;
+    const G1_QUESTIONS = [
+      { expr: "7x + 4", ask: "Manakah koefisien dari x?", options: ["7", "x", "4", "7x"], correct: 0 },
+      { expr: "3y - 9", ask: "Manakah yang merupakan konstanta?", options: ["3", "y", "-9", "9"], correct: 2 },
+      { expr: "5a² + 2a - 1", ask: "Manakah variabel pada suku kedua?", options: ["a²", "a", "5", "2"], correct: 1 }
+    ];
+
+    function renderGame1(container) {
+      g1Score = 0;
+      g1Round = 0;
+      showG1Round(container);
+    }
+
+    function showG1Round(container) {
+      if (g1Round >= G1_QUESTIONS.length) {
+        container.innerHTML = `
+          <div class="text-center py-8">
+            <h3 class="text-3xl font-black text-amber-500 mb-2">🎉 Game Selesai!</h3>
+            <p class="text-slate-600 font-bold mb-4">Skor Akhir Kamu: ${g1Score} Poin</p>
+            <button onclick="startMinigame(1)" class="bg-amber-500 text-white font-extrabold px-6 py-2.5 rounded-xl">Main Lagi</button>
+          </div>
+        `;
+        addStars(3);
+        return;
+      }
+      const q = G1_QUESTIONS[g1Round];
+      container.innerHTML = `
+        <div class="text-center max-w-md mx-auto">
+          <span class="text-xs font-bold text-amber-600 uppercase">Game 1 • Ronde ${g1Round + 1} dari ${G1_QUESTIONS.length}</span>
+          <div class="bg-slate-900 text-amber-400 text-3xl font-black p-6 rounded-2xl my-4">${q.expr}</div>
+          <h4 class="font-bold text-slate-800 mb-4">${q.ask}</h4>
+          <div class="grid grid-cols-2 gap-3">
+            ${q.options.map((opt, idx) => `
+              <button onclick="checkG1Ans(${idx})" class="p-3 bg-slate-100 hover:bg-amber-100 border border-slate-200 font-extrabold text-slate-700 rounded-xl transition">${opt}</button>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function checkG1Ans(idx) {
+      if (idx === G1_QUESTIONS[g1Round].correct) {
+        playSoundEffect('correct');
+        g1Score += 100;
+      } else {
+        playSoundEffect('wrong');
+      }
+      g1Round++;
+      showG1Round(document.getElementById('game-active-container'));
+    }
+
+    // GAME 2: Memory Matching
+    function renderGame2(container) {
+      container.innerHTML = `
+        <div class="text-center">
+          <h3 class="text-xl font-extrabold text-slate-800 mb-2">Pasangkan Kartu Suku Sejenis</h3>
+          <p class="text-xs text-slate-500 mb-6">Klik 2 kartu untuk menemukan pasangan suku sejenis yang cocok!</p>
+          <div class="grid grid-cols-4 gap-3 max-w-md mx-auto mb-4">
+            <button class="h-20 bg-blue-600 text-white font-black text-xl rounded-2xl shadow">3x</button>
+            <button class="h-20 bg-blue-600 text-white font-black text-xl rounded-2xl shadow">7y</button>
+            <button class="h-20 bg-blue-600 text-white font-black text-xl rounded-2xl shadow">-2x</button>
+            <button class="h-20 bg-blue-600 text-white font-black text-xl rounded-2xl shadow">4y</button>
+          </div>
+          <button onclick="startMinigame(2)" class="text-xs text-blue-600 font-bold hover:underline">Acak Ulang Kartu</button>
+        </div>
+      `;
+    }
+
+    // GAME 3: Kejar Jawaban (60s Timer Rush)
+    function renderGame3(container) {
+      let timer = 60;
+      let score = 0;
+      container.innerHTML = `
+        <div class="text-center max-w-md mx-auto">
+          <div class="flex justify-between items-center mb-4">
+            <span class="text-xs font-bold text-rose-600">Skor: <span id="g3-score">0</span></span>
+            <span class="text-xs font-bold bg-rose-100 text-rose-700 px-3 py-1 rounded-full">⏱️ Waktu: <span id="g3-time">60</span>s</span>
+          </div>
+          <div class="bg-slate-900 text-white text-3xl font-black p-6 rounded-2xl mb-4">2x + 5x = ?</div>
+          <div class="grid grid-cols-2 gap-3">
+            <button onclick="g3Answer(true)" class="p-4 bg-emerald-100 text-emerald-800 font-black rounded-2xl text-xl">7x</button>
+            <button onclick="g3Answer(false)" class="p-4 bg-rose-100 text-rose-800 font-black rounded-2xl text-xl">10x</button>
+          </div>
+        </div>
+      `;
+      if (gameTimerInterval) clearInterval(gameTimerInterval);
+      gameTimerInterval = setInterval(() => {
+        timer--;
+        const tEl = document.getElementById('g3-time');
+        if (tEl) tEl.innerText = timer;
+        if (timer <= 0) {
+          clearInterval(gameTimerInterval);
+          container.innerHTML = `<div class="text-center py-6"><h3 class="text-2xl font-black text-rose-600">Waktu Habis! Skor Kamu: ${score}</h3></div>`;
+        }
+      }, 1000);
+    }
+    function g3Answer(isCorrect) {
+      if (isCorrect) { playSoundEffect('correct'); addStars(1); } else playSoundEffect('wrong');
+    }
+
+    // GAME 4: Petualangan 10 Level Map
+    function renderGame4(container) {
+      container.innerHTML = `
+        <div class="text-center">
+          <h3 class="text-2xl font-black text-slate-800 mb-4">Peta Petualangan 10 Level Aljabar</h3>
+          <div class="grid grid-cols-5 gap-3 max-w-lg mx-auto">
+            ${Array.from({ length: 10 }).map((_, i) => `
+              <button onclick="playLevel(${i + 1})" class="h-16 rounded-2xl font-black text-sm flex flex-col items-center justify-center transition shadow ${i === 0 ? 'bg-purple-600 text-white border-2 border-amber-400' : 'bg-slate-100 text-slate-400'}">
+                <span>Lv ${i + 1}</span>
+                <span class="text-xs">⭐ ${i === 0 ? '3' : '0'}</span>
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+    function playLevel(lvl) {
+      alert(`Memulai Level ${lvl}! Selesaikan tantangan aljabar ini.`);
+    }
+
+    /* ==========================================================================
+       MENU 5: LKPD DIGITAL LOGIC
+       ========================================================================== */
+    const LKPD_DATA = [
+      {
+        title: "LKPD 1: Mengenal Bentuk Aljabar",
+        instructions: "Isilah kolom jawaban di bawah ini berdasarkan pemahaman konsep dasar aljabar yang telah kamu pelajari.",
+        questions: [
+          { q: "1. Nyatakan kalimat ini ke bentuk aljabar: 'Rani membeli 4 kotak pensil dan 3 pensil tambahan'.", id: "lkpd1_q1" },
+          { q: "2. Tentukan variabel, koefisien, dan konstanta pada bentuk aljabar 6a - 15!", id: "lkpd1_q2" }
+        ]
+      },
+      {
+        title: "LKPD 2: Operasi Bentuk Aljabar",
+        instructions: "Kerjakan perhitungan penjumlahan, pengurangan, dan perkalian aljabar berikut ini secara bertahap.",
+        questions: [
+          { q: "1. Sederhanakanlah bentuk aljabar berikut: (4x + 7y) + (3x - 2y). Tuliskan langkah penyeleainnya!", id: "lkpd2_q1" },
+          { q: "2. Jabarkan bentuk perkalian distributif: 5(2m - 4n).", id: "lkpd2_q2" }
+        ]
+      },
+      {
+        title: "LKPD 3: Aljabar dalam Kehidupan Sehari-hari",
+        instructions: "Selesaikan permasalahan kontekstual di sekitar sekolah menggunakan pemodelan aljabar.",
+        questions: [
+          { q: "1. Sebuah persegi panjang memiliki panjang (x + 5) cm dan lebar 4 cm. Tuliskan rumus luasnya dalam bentuk aljabar!", id: "lkpd3_q1" },
+          { q: "2. Refleksi: Sebutkan 1 contoh manfaat belajar Aljabar yang kamu rasakan dalam kehidupan nyata!", id: "lkpd3_q2" }
+        ]
+      }
+    ];
+
+    let activeLKPDIdx = 0;
+
+    function switchLKPD(lkpdNum) {
+      playSoundEffect('click');
+      activeLKPDIdx = lkpdNum - 1;
+      [1, 2, 3].forEach(n => {
+        const tab = document.getElementById(`lkpd-tab-${n}`);
+        tab.className = "flex-1 py-2.5 text-xs sm:text-sm font-bold rounded-xl transition text-slate-500 hover:text-indigo-600";
+      });
+      document.getElementById(`lkpd-tab-${lkpdNum}`).className = "flex-1 py-2.5 text-xs sm:text-sm font-bold rounded-xl transition text-indigo-600 bg-indigo-50 shadow-sm";
+
+      renderLKPDContent();
+    }
+
+    function renderLKPDContent() {
+      const data = LKPD_DATA[activeLKPDIdx];
+      const container = document.getElementById('lkpd-body-content');
+
+      container.innerHTML = `
+        <div class="bg-indigo-50 p-4 rounded-2xl border border-indigo-100">
+          <h3 class="font-extrabold text-indigo-900 text-lg mb-1">${data.title}</h3>
+          <p class="text-xs text-indigo-700 font-medium">${data.instructions}</p>
+        </div>
+
+        ${data.questions.map((qObj, idx) => `
+          <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
+            <label class="block text-xs sm:text-sm font-bold text-slate-800 mb-2">${qObj.q}</label>
+            <textarea id="${qObj.id}" rows="3" placeholder="Ketik jawaban kamu secara rinci di sini..." class="w-full bg-white p-3 rounded-xl border border-slate-300 text-xs text-slate-700 font-medium focus:border-indigo-500 outline-none transition"></textarea>
+          </div>
+        `).join('')}
+      `;
+
+      // Load saved responses if any
+      document.getElementById('lkpd-name').value = APP_STATE.userName;
+      data.questions.forEach(qObj => {
+        const savedVal = localStorage.getItem(`aljabar_${qObj.id}`);
+        if (savedVal) {
+          const ta = document.getElementById(qObj.id);
+          if (ta) ta.value = savedVal;
+        }
+      });
+    }
+
+    function saveLKPD() {
+      const data = LKPD_DATA[activeLKPDIdx];
+      data.questions.forEach(qObj => {
+        const ta = document.getElementById(qObj.id);
+        if (ta) {
+          localStorage.setItem(`aljabar_${qObj.id}`, ta.value);
+        }
+      });
+      playSoundEffect('correct');
+      speakText('Jawaban LKPD berhasil disimpan!');
+      alert('✅ Jawaban LKPD kamu berhasil disimpan di memori perangkat!');
+    }
+
+    function printLKPD() {
+      saveLKPD();
+      window.print();
+    }
+
+    /* ==========================================================================
+       MENU 6: EVALUASI LOGIC (20 QUESTIONS)
+       ========================================================================== */
+    const EVAL_QUESTIONS = [
+      // Konsep dasar (3)
+      { q: "1. Bentuk matematika yang memuat huruf-huruf untuk mewakili bilangan yang belum diketahui disebut...", options: ["Konstanta", "Bentuk Aljabar", "Persamaan Linear", "Suku Sejenis"], correct: 1, topic: "Konsep Dasar", explanation: "Bentuk aljabar adalah gabungan angka dan huruf simbolis." },
+      { q: "2. Rani membeli 3 kantong permen. Jika 1 kantong permen dinyatakan dengan p, bentuk aljabarnya adalah...", options: ["p + 3", "3p", "p³", "3 + p"], correct: 1, topic: "Konsep Dasar", explanation: "3 kantong permen p ditulis 3 × p = 3p." },
+      { q: "3. Arti dari bentuk aljabar 4x adalah...", options: ["4 + x", "x + x + x + x", "4 ÷ x", "x⁴"], correct: 1, topic: "Konsep Dasar", explanation: "4x artinya 4 kali x, atau penjumlahan x sebanyak 4 kali." },
+
+      // Variabel, Koefisien, Konstanta, Suku (4)
+      { q: "4. Pada bentuk aljabar 7x - 5y + 12, angka 7 disebut...", options: ["Variabel", "Konstanta", "Koefisien dari x", "Suku"], correct: 2, topic: "Variabel & Suku", explanation: "Angka di depan x dinamakan koefisien x." },
+      { q: "5. Huruf penanda nilai yang belum diketahui pada bentuk 9a + 4 dinamakan...", options: ["Koefisien", "Variabel", "Konstanta", "Derajat"], correct: 1, topic: "Variabel & Suku", explanation: "Huruf 'a' dinamakan variabel." },
+      { q: "6. Konstanta dari bentuk aljabar 2x² - 8x - 15 adalah...", options: ["2", "-8", "15", "-15"], correct: 3, topic: "Variabel & Suku", explanation: "Konstanta adalah angka tanpa variabel, yaitu -15." },
+      { q: "7. Banyaknya suku pada bentuk aljabar 3a + 2b - 5c + 8 adalah...", options: ["2 suku", "3 suku", "4 suku", "5 suku"], correct: 2, topic: "Variabel & Suku", explanation: "Terdiri dari suku 3a, 2b, -5c, dan 8 (4 suku)." },
+
+      // Suku Sejenis (3)
+      { q: "8. Pasangan suku berikut yang SEJENIS adalah...", options: ["3x dan 3y", "5ab dan -2ab", "4x² dan 4x", "7p dan 7"], correct: 1, topic: "Suku Sejenis", explanation: "5ab dan -2ab memiliki variabel ab berpangkat sama." },
+      { q: "9. Suku yang sejenis dengan -4y² adalah...", options: ["8y", "-4y", "9y²", "4xy"], correct: 2, topic: "Suku Sejenis", explanation: "9y² memiliki variabel y berpangkat 2." },
+      { q: "10. Manakah yang BUKAN merupakan kelompok suku sejenis?", options: ["2a dan 7a", "-x dan 5x", "3m²n dan 8m²n", "6p dan 6q"], correct: 3, topic: "Suku Sejenis", explanation: "6p dan 6q memiliki variabel berbeda (p dan q)." },
+
+      // Penjumlahan & Pengurangan (4)
+      { q: "11. Hasil dari 5x + 3x adalah...", options: ["8x²", "8x", "15x", "8"], correct: 1, topic: "Penjumlahan & Pengurangan", explanation: "(5 + 3)x = 8x." },
+      { q: "12. Bentuk sederhana dari 9y - 4y + 2y adalah...", options: ["7y", "3y", "11y", "7y³"], correct: 0, topic: "Penjumlahan & Pengurangan", explanation: "(9 - 4 + 2)y = 7y." },
+      { q: "13. Hasil dari (3a + 5b) + (2a - 3b) adalah...", options: ["5a + 2b", "5a + 8b", "6a - 15b", "5a - 2b"], correct: 0, topic: "Penjumlahan & Pengurangan", explanation: "(3a+2a) + (5b-3b) = 5a + 2b." },
+      { q: "14. Hasil pengurangan (8x - 3) oleh (5x + 4) adalah...", options: ["3x - 7", "3x + 1", "13x + 1", "3x + 7"], correct: 0, topic: "Penjumlahan & Pengurangan", explanation: "(8x - 5x) + (-3 - 4) = 3x - 7." },
+
+      // Perkalian & Pembagian (3)
+      { q: "15. Hasil kali dari 4(3x - 5) adalah...", options: ["12x - 5", "12x - 20", "7x - 20", "12x + 20"], correct: 1, topic: "Perkalian & Pembagian", explanation: "4(3x) + 4(-5) = 12x - 20." },
+      { q: "16. Hasil dari 2a × 5a adalah...", options: ["7a", "10a", "10a²", "7a²"], correct: 2, topic: "Perkalian & Pembagian", explanation: "(2×5)(a×a) = 10a²." },
+      { q: "17. Hasil pembagian 12x²y ÷ 4x adalah...", options: ["3xy", "3x", "4xy", "3y"], correct: 0, topic: "Perkalian & Pembagian", explanation: "(12÷4)(x²÷x)(y) = 3xy." },
+
+      // Substitusi (3)
+      { q: "18. Jika x = 5, maka nilai dari 3x + 4 adalah...", options: ["12", "19", "39", "15"], correct: 1, topic: "Substitusi", explanation: "3(5) + 4 = 15 + 4 = 19." },
+      { q: "19. Jika a = 3 dan b = -2, maka nilai dari 2a - 4b adalah...", options: ["-2", "14", "2", "-14"], correct: 1, topic: "Substitusi", explanation: "2(3) - 4(-2) = 6 + 8 = 14." },
+      { q: "20. Jika m = -3, maka nilai dari m² + 5 adalah...", options: ["-4", "14", "-1", "11"], correct: 1, topic: "Substitusi", explanation: "(-3)² + 5 = 9 + 5 = 14." }
+    ];
+
+    let evalUserAnswers = new Array(20).fill(null);
+    let currentEvalIdx = 0;
+
+    function startEvaluation() {
+      playSoundEffect('click');
+      evalUserAnswers.fill(null);
+      currentEvalIdx = 0;
+
+      document.getElementById('eval-start-card').classList.add('hidden');
+      document.getElementById('eval-quiz-card').classList.remove('hidden');
+      document.getElementById('eval-timer-box').classList.remove('hidden');
+
+      renderEvalMatrix();
+      renderEvalQuestion();
+    }
+
+    function renderEvalMatrix() {
+      const container = document.getElementById('eval-matrix');
+      container.innerHTML = EVAL_QUESTIONS.map((_, i) => `
+        <button onclick="jumpToEvalQuestion(${i})" class="w-6 h-6 rounded-lg text-xs font-bold transition ${evalUserAnswers[i] !== null ? 'bg-rose-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">
+          ${i + 1}
+        </button>
+      `).join('');
+    }
+
+    function renderEvalQuestion() {
+      const q = EVAL_QUESTIONS[currentEvalIdx];
+      document.getElementById('eval-curr-num').innerText = currentEvalIdx + 1;
+      document.getElementById('eval-question-text').innerText = q.q;
+
+      const optionsContainer = document.getElementById('eval-options-container');
+      optionsContainer.innerHTML = q.options.map((opt, oIdx) => `
+        <button onclick="selectEvalOption(${oIdx})" class="w-full text-left p-4 rounded-2xl border-2 transition font-bold text-sm flex items-center justify-between ${evalUserAnswers[currentEvalIdx] === oIdx ? 'border-rose-500 bg-rose-50 text-rose-900' : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'}">
+          <span>${String.fromCharCode(65 + oIdx)}. ${opt}</span>
+          ${evalUserAnswers[currentEvalIdx] === oIdx ? '<i class="fa-solid fa-circle-check text-rose-600"></i>' : ''}
+        </button>
+      `).join('');
+
+      // Nav buttons visibility
+      document.getElementById('btn-eval-prev').style.visibility = currentEvalIdx === 0 ? 'hidden' : 'visible';
+      if (currentEvalIdx === 19) {
+        document.getElementById('btn-eval-next').classList.add('hidden');
+        document.getElementById('btn-eval-submit').classList.remove('hidden');
+      } else {
+        document.getElementById('btn-eval-next').classList.remove('hidden');
+        document.getElementById('btn-eval-submit').classList.add('hidden');
+      }
+      renderEvalMatrix();
+    }
+
+    function selectEvalOption(oIdx) {
+      playSoundEffect('click');
+      evalUserAnswers[currentEvalIdx] = oIdx;
+      renderEvalQuestion();
+    }
+
+    function nextEvalQuestion() { if (currentEvalIdx < 19) { currentEvalIdx++; renderEvalQuestion(); } }
+    function prevEvalQuestion() { if (currentEvalIdx > 0) { currentEvalIdx--; renderEvalQuestion(); } }
+    function jumpToEvalQuestion(idx) { currentEvalIdx = idx; renderEvalQuestion(); }
+
+    function submitEvaluation() {
+      const unanswered = evalUserAnswers.filter(a => a === null).length;
+      if (unanswered > 0 && !confirm(`Masih ada ${unanswered} soal yang belum kamu jawab. Selesaikan sekarang?`)) {
+        return;
+      }
+
+      let correctCount = 0;
+      evalUserAnswers.forEach((ans, idx) => {
+        if (ans === EVAL_QUESTIONS[idx].correct) correctCount++;
+      });
+
+      const score = Math.round((correctCount / 20) * 100);
+      APP_STATE.evalScore = score;
+      localStorage.setItem('aljabar_evalScore', score);
+
+      let predicate = '';
+      let categoryBg = '';
+      if (score >= 90) { predicate = 'Sangat Baik 🎉'; categoryBg = 'bg-emerald-100 text-emerald-800'; }
+      else if (score >= 80) { predicate = 'Baik 👍'; categoryBg = 'bg-blue-100 text-blue-800'; }
+      else if (score >= 70) { predicate = 'Cukup 🙂'; categoryBg = 'bg-amber-100 text-amber-800'; }
+      else { predicate = 'Perlu Belajar Lagi 💪'; categoryBg = 'bg-rose-100 text-rose-800'; }
+
+      document.getElementById('eval-quiz-card').classList.add('hidden');
+      document.getElementById('eval-timer-box').classList.add('hidden');
+
+      const resultCard = document.getElementById('eval-result-card');
+      resultCard.classList.remove('hidden');
+
+      resultCard.innerHTML = `
+        <div class="text-center max-w-2xl mx-auto">
+          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Hasil Evaluasi Pembelajaran</span>
+          <h3 class="text-3xl font-black text-slate-800 mt-1 mb-4">Laporan Nilai Kamu</h3>
+
+          <div class="bg-gradient-to-r from-slate-900 to-indigo-950 text-white p-8 rounded-3xl shadow-xl mb-6">
+            <div class="text-6xl font-black text-amber-400 mb-2">${score}</div>
+            <div class="inline-block px-4 py-1.5 rounded-full text-xs font-extrabold ${categoryBg} mb-3">${predicate}</div>
+            <p class="text-xs text-slate-300">Benar: ${correctCount} Soal | Salah: ${20 - correctCount} Soal</p>
+          </div>
+
+          <!-- Discussion Section -->
+          <div class="text-left bg-slate-50 p-6 rounded-2xl border border-slate-200 mb-6 max-h-96 overflow-y-auto">
+            <h4 class="font-bold text-slate-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-list-check text-rose-600"></i> Pembahasan Soal Lengkap:</h4>
+            <div class="space-y-4 text-xs">
+              ${EVAL_QUESTIONS.map((q, idx) => `
+                <div class="p-3 bg-white rounded-xl border border-slate-200">
+                  <div class="font-bold text-slate-800 mb-1">${q.q}</div>
+                  <div class="text-slate-500 mb-1">Jawaban Kamu: <span class="${evalUserAnswers[idx] === q.correct ? 'text-emerald-600 font-bold' : 'text-rose-600 font-bold'}">${evalUserAnswers[idx] !== null ? q.options[evalUserAnswers[idx]] : 'Tidak Dijawab'}</span></div>
+                  <div class="text-emerald-700 font-semibold">Kunci: ${q.options[q.correct]}</div>
+                  <div class="text-slate-400 italic mt-1">${q.explanation}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <button onclick="startEvaluation()" class="bg-rose-600 hover:bg-rose-700 text-white font-extrabold px-8 py-3 rounded-2xl transition">
+            <i class="fa-solid fa-rotate-left mr-1"></i> Ulangi Evaluasi
+          </button>
+        </div>
+      `;
+
+      updateUIState();
+      speakText(`Evaluasi selesai. Nilai kamu adalah ${score}. Predikat: ${predicate}`);
+    }
+
+    /* ==========================================================================
+       MENU 7: PENGEMBANG CUSTOM PHOTO UPLOAD LOGIC
+       ========================================================================== */
+    function handleImageUpload(event, imgElementId, localStorageKey) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById(imgElementId).src = e.target.result;
+          localStorage.setItem(localStorageKey, e.target.result);
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function loadSavedCustomAssets() {
+      const savedPhoto = localStorage.getItem('savedDevPhoto');
+      if (savedPhoto) document.getElementById('dev-photo-img').src = savedPhoto;
+      
+      const savedLogo = localStorage.getItem('savedSchoolLogo');
+      if (savedLogo) document.getElementById('school-logo-img').src = savedLogo;
+    }
+
+    /* ==========================================================================
+       INIT APP ON LOAD
+       ========================================================================== */
+    window.onload = function() {
+      // Load stored assets & initial state
+      loadSavedCustomAssets();
+      if (APP_STATE.userName) {
+        document.getElementById('student-name-input').value = APP_STATE.userName;
+      }
+      renderMateriTabs();
+      loadMateriTopic(0);
+      switchLKPD(1);
+      updateUIState();
+
+      console.log('ALJABAR EXPLORER initialized successfully.');
+    };
+  </script>
+</body>
+</html>
